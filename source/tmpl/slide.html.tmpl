@@ -1,0 +1,6 @@
+<% var numberInFilename = filename.replace(/slide-/g, '').replace(/.html/g, '') %>
+content slide <%= numberInFilename %>
+<hr>
+<p><%= obj['slide_'+numberInFilename] %></p>
+<h3><%= obj['slide_'+numberInFilename+'_subtitle'] %></h3>
+<a href="slide-<%= obj['slide_'+numberInFilename+'_option_1_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_1'] %></a> | <a href="slide-<%= obj['slide_'+numberInFilename+'_option_2_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_2'] %></a>

@@ -1,0 +1,92 @@
+/* separate your sass into different files to keep it maintainable!  */
+.main {
+    max-width: 960px;
+    position: relative;
+    .slides {
+        width: 80%;
+        float: left;
+        .option-wrapper {
+            width: 49%;
+            float: left;
+            margin-left: 10px;
+            .option {
+                background: #007f7f;
+                padding: 20px;
+                text-align: center;
+                color: #fff;
+                cursor: pointer;
+            }
+            .description {
+                background: #e8e8e8;
+                padding: 5px 8px;
+            }
+            &:first-child {
+                margin: 0;
+            }
+        }
+        hr {
+            clear: both;
+            border: 0;
+            height: 10px;
+        }
+    }
+    .sidebar {
+        width: 15%;
+        border: 2px solid #ddd;
+        position: absolute;
+        right: 0;
+        overflow: hidden;
+    }
+    svg {
+        transform: translate(-250px,-70px);
+        circle {
+            fill: #fff;
+            &.next {
+                fill: #ddd;
+            }
+            &.on {
+                fill: #007F7F;
+            }
+        }
+        path {
+            stroke: transparent;
+            stroke-width: 3;
+            fill: none;
+            stroke-miterlimit: 10;
+            &.trail {
+                stroke: transparent;
+            }
+            &.next {
+                stroke: #ddd;
+            }
+            &.on {
+                stroke: #007F7F;
+            }
+            &.anim {
+                stroke:#007F7F;
+                stroke-dasharray: 65;
+                stroke-dashoffset: 65;
+                animation: dash 2s linear alternate 1;
+                -webkit-animation: dash 2s linear alternate 1;
+                -webkit-animation-fill-mode: forwards;
+            }
+        }
+    }
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-webkit-keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

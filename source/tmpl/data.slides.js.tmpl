@@ -1,0 +1,26 @@
+define([], function () {
+
+    return {
+        'main-title' : '<%= main_title %>',
+        <% for (var a = 1; a < 8; a++) { %>
+                'slide-<%= a %>' : {
+                    'content' : '<%= obj['slide_' + a] %>',
+                    'subtitle' : '<%= obj['slide_' + a + '_subtitle'] %>',
+                    'options' : {
+                        'a' : {
+                            'label' : '<%= obj['slide_' + a + '_option_1'] %>',
+                            'description' : '<%= obj['slide_' + a + '_option_1_description'] %>',
+                            'number' : '<%= obj['slide_' + a + '_option_1_number'] %>'
+                        },
+                        'b' : {
+                            'label' : '<%= obj['slide_' + a + '_option_2'] %>',
+                            'description' : '<%= obj['slide_' + a + '_option_2_description'] %>',
+                            'number' : '<%= obj['slide_' + a + '_option_2_number'] %>'
+                        }
+                    }
+                }<% if (a !== 7) { %>,<% } %>
+        <%  }; %>
+
+    }
+
+});
