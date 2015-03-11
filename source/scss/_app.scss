@@ -1,22 +1,38 @@
 /* separate your sass into different files to keep it maintainable!  */
 .main {
-    max-width: 960px;
+    max-width: 974px;
     position: relative;
     .slides {
+        margin-left: 31px;
         width: 80%;
         float: left;
+        h2 {
+            padding-bottom: 9px;
+            border-bottom: 1px solid #ccc;
+            font-size: 20px;
+        }
+        h3 {
+            padding-bottom: 0;
+            font-size: 16px;
+        }
+        p {
+            font-size: 16px;
+        }
         .option-wrapper {
-            width: 49%;
+            width: 44%;
             float: left;
-            margin-left: 10px;
+            margin-left: 30px;
             .option {
                 background: #007f7f;
-                padding: 20px;
+                padding: 21px;
                 text-align: center;
                 color: #fff;
                 cursor: pointer;
+                font-weight: bold;
+                font-size: 20px;
             }
             .description {
+                color: #404040;
                 background: #e8e8e8;
                 padding: 5px 8px;
             }
@@ -31,11 +47,7 @@
         }
     }
     .sidebar {
-        width: 15%;
-        border: 2px solid #ddd;
-        position: absolute;
-        right: 0;
-        overflow: hidden;
+        display: none;
     }
     svg {
         transform: translate(-250px,-70px);
@@ -89,4 +101,151 @@
   to {
     stroke-dashoffset: 0;
   }
+}
+
+
+
+/*
+.main {
+    max-width: 974px;
+    position: relative;
+    .slides {
+        margin-left: 41px;
+        width: 75%;
+        float: left;
+        h2 {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ccc;
+            font-size: 20px;
+        }
+    }
+}
+*/
+@include respondMinMax (400px, false) {
+    .main {
+        .slides {
+            width:83%;
+            .option-wrapper {
+                width: 45.5%;
+            }
+        }
+    }
+}
+@include respondMinMax (600px, false) {
+    .main {
+        .slides {
+            margin-left: 41px;
+            width:67%;
+            h2 {
+                padding-bottom: 17px;
+                font-size: 24px;
+            }
+            h3 {
+                padding-bottom: 0;
+                font-size: 18px;
+            }
+            p {
+                font-size: 18px;
+            }
+            .option-wrapper {
+                width: 45%;
+            }
+        }
+        .sidebar {
+            display: block;
+            width: 142px;
+            border: 2px solid #ddd;
+            position: absolute;
+            right: 0;
+            overflow: hidden;
+            height: 165px;
+            .overlay {
+                display: block;
+                position: absolute;
+                width: 100%;
+                overflow: hidden;
+                height: 100%;
+                z-index: 1001;
+                h4 {
+                    text-align: center;
+                    &.end {
+                        display: none;
+                    }
+                }
+                li {
+                    list-style: none;
+                    position: absolute;
+                    color: transparent;
+                    &.step-1 {
+                        top: 61px;
+                        left: 65px;
+                    }
+                    &.step-2 {
+                        top: 122px;
+                        left: 38px;
+                    }
+                    &.step-3 {
+                        top: 181px;
+                        left: 76px;
+                    }
+                    &.step-4 {
+                        top: 246px;
+                        left: 90px;
+                    }
+                    &.step-5 {
+                        top: 305px;
+                        left: 55px;
+                    }
+                    &.step-6 {
+                        top: 371px;
+                        left: 54px;
+                    }
+                    &.step-7 {
+                        top: 433px;
+                        left: 94px;
+                    }
+                    &.step-8 {
+                        top: 495px;
+                        left: 70px;
+                    }
+                    &.next {
+                        color: #404040;
+                    }
+                    &.on {
+                        color: #fff;
+                    }
+                }
+            }
+        }
+    }
+}
+@include respondMinMax (720px, false) {
+    .main {
+        .slides {
+            width:67%;
+            .option-wrapper {
+                width: 45.5%;
+            }
+        }
+    }
+}
+@include respondMinMax (800px, false) {
+    .main {
+        .slides {
+            width:72%;
+            .option-wrapper {
+                width: 46%;
+            }
+        }
+    }
+}
+@include respondMinMax (906px, false) {
+    .main {
+        .slides {
+            width:75%;
+            .option-wrapper {
+                width: 47%;
+            }
+        }
+    }
 }

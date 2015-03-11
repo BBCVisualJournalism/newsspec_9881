@@ -13,7 +13,7 @@ module.exports = function (grunt) {
     };
 
     // adding slides
-    for (var a = 1; a < 8; a++) {
+    for (var a = 1; a < 43; a++) {
         projectFiles['slide-' + a + '.html'] = 'slide.html.tmpl';
     };
 

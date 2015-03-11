@@ -46,14 +46,19 @@ define([
     };
 
     createSlide = function(number) {
-        console.log('slide ' + number);
         var slide = slides['slide-' + number],
             content = slide['content'],
+            title = slide['title'],
             subtitle = slide['subtitle'],
             options = this.createOptions(slide['options']),
-            html =  '<p>' + content + '</p>' +
-                    '<h3>' + subtitle + '</h3>' +
-                    options + '<hr>';
+            html = '<div class="slide new">';
+
+        if (title !== '') html +=  '<h2>' + title + '</h2>';
+        if (content !== '') html += '<p>' + content + '</p>';
+        if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
+        if (options !== '') html += options + '<hr>';
+
+        html += '</div>';
 
         this.count++;
 
@@ -65,10 +70,13 @@ define([
 
         for (var i in optionsNode) {
             options += '<div class="option-wrapper" data-slide-number="' + optionsNode[i].number + '"><div class="option">' + optionsNode[i].label + '</div>';
-            options += '<div class="description">' + optionsNode[i].description + '</div></div>';
+            if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
+            options += '</div>';
         }
 
         options += '</div>';
+
+        if (optionsNode['a'].label === '') options = '';
 
         return options;
     };
@@ -89,12 +97,36 @@ define([
         news.$('.sidebar').find('circle.step-' + this.count).attr('class', 'on step-' + this.count);
         news.$('.sidebar').find('circle.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
         news.$('.sidebar').find('path.step-' + this.count).not('.trail').attr('class', 'anim step-' + this.count);
+
+        news.$('.sidebar').find('li.step-' + this.count).attr('class', 'on step-' + this.count);
     };
 
     updateNavigatorNext = function() {
         news.$('.sidebar').find('circle.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
         news.$('.sidebar').find('path.trail.step-' + (this.count + 1)).attr('class', 'trail next step-' + (this.count + 1));
         news.$('.sidebar').find('path.step-' + (this.count + 1)).not('.trail').attr('class', 'next step-' + (this.count + 1));
+
+        news.$('.sidebar').find('li.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
+    };
+
+    heightPair = function() {
+        var $slide = news.$('.slide.new'),
+            $descriptions = $slide.find('.description');
+
+        $descriptions.each(function () {
+            var $currentItem = news.$(this),
+                $previousItem = news.$(this).closest('.option-wrapper').prev().find('.description');
+
+            if ($currentItem.height() < $previousItem.height()) {
+                $currentItem.height($previousItem.height());
+            } else {
+                $previousItem.height($currentItem.height());
+            }
+        })
+    };
+
+    sidebarPair = function() {
+        news.$('.sidebar').height(news.$('.sidebar').height() + 62);
     };
 
     createEventListeners = function() {
@@ -103,6 +135,8 @@ define([
         news.pubsub.on('slide:created', function () {
             that.bindOptions();
             that.updateNavigator();
+            that.heightPair();
+            that.sidebarPair();
         });
 
         $("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
@@ -119,7 +153,9 @@ define([
         bindOptions: bindOptions,
         createEventListeners: createEventListeners,
         updateNavigator: updateNavigator,
-        updateNavigatorNext: updateNavigatorNext
+        updateNavigatorNext: updateNavigatorNext,
+        heightPair: heightPair,
+        sidebarPair: sidebarPair
     }
 
 });

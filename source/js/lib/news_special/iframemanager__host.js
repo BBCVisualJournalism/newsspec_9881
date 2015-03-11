@@ -30,10 +30,10 @@
                 domElement.attachEvent('on' + eventName, callback);
             }
         },
-        
+
         data: {},
-        
-        updateFrequency: 32,
+
+        updateFrequency: 60,
 
         createIframe: function () {
 
@@ -46,7 +46,7 @@
                 urlParams     = window.location.hash || '',
                 hostUrl       = window.location.href.replace(urlParams, ''),
                 onBBC         = this.onBbcDomain();
-            
+
             this.staticHeight = link.getAttribute('data-static-iframe-height');
             this.addLoadingSpinner(link, linkId);
 
@@ -88,7 +88,7 @@
         },
 
         handleIframeLoad: function (startIframing) {
-            // IMPORTANT: Had to make this an onload because the 
+            // IMPORTANT: Had to make this an onload because the
             // polyfilling and jquery on one page causes issues
             this.onEvent(window, 'load', function () {
                 startIframing();
@@ -97,7 +97,7 @@
             if (this.elm.onload) {
                 this.elm.onload = startIframing;
             }
-            // Bug in IE7 means onload doesn't fire when an iframe 
+            // Bug in IE7 means onload doesn't fire when an iframe
             // loads, but the event will fire if you attach it correctly
             else if ('attachEvent' in this.elm) {
                 this.elm.attachEvent('onload', startIframing);
@@ -255,7 +255,7 @@
                 this.emptyQueue(this.istatsQueue);
             }
         },
-        
+
         istatsInTheData: function (data) {
             return data.istats && data.istats.actionType;
         },
@@ -267,7 +267,7 @@
                 'viewLabel':  data.istats.viewLabel
             });
         },
-        
+
         istatsQueueLocked: false,
 
         emptyQueue: function (queue) {
@@ -284,7 +284,7 @@
     };
 
     function cutsTheMustard() {
-        
+
         var modernDevice =
                 document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#BasicStructure', '1.1') &&
                 'querySelector' in document &&
