@@ -12,6 +12,7 @@ define(['jquery'], function ($) {
                 externalHostCommunicator.setHeight();
                 externalHostCommunicator.registerIstatsCall(actionType, actionName, viewLabel);
             });
+            $.on('window:scrollTo', this.sendScrollToHost);
         },
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
@@ -28,7 +29,35 @@ define(['jquery'], function ($) {
             }
         },
         setupPostMessage: function () {
+            var self = this;
+
             window.setInterval(this.sendDataByPostMessage, 32);
+
+            window.addEventListener('message', function (message) {
+                var data = self.getObjectNotationFromDataString(message.data);
+
+                if (data) {
+                    var parentScrollTop = data.parentScrollTop,
+                        iFrameOffset    = data.iFrameOffset,
+                        iFrameHeight    = $('.main').outerHeight(),
+                        viewportHeight  = data.viewportHeight,
+                        windowScrollEventData = {
+                            parentScrollTop: parentScrollTop,
+                            iFrameOffset:    iFrameOffset,
+                            iFrameHeight:    iFrameHeight,
+                            viewportHeight:  viewportHeight
+                        };
+
+                    $.emit('window:scroll', [windowScrollEventData]);
+                }
+
+            }, false);
+        },
+        getObjectNotationFromDataString: function (data) {
+            if (data.indexOf('::') > -1) {
+                return JSON.parse(data.split('::')[1]);
+            }
+            return false;
         },
         sendDataByPostMessage: function (istatsData) {
             var talker_uid = window.location.pathname,
@@ -83,6 +112,15 @@ define(['jquery'], function ($) {
             var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
                 results = regex.exec(location.search);
             return results == null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        },
+        sendScrollToHost: function (scrollPosition, scrollDuration) {
+            var talker_uid = window.location.pathname,
+            message = {
+                scrollPosition: scrollPosition,
+                scrollDuration: scrollDuration,
+                hostPageCallback: false
+            };
+            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         }
     };
     return hostCommunicator;

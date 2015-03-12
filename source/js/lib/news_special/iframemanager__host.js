@@ -109,6 +109,17 @@
                 var uidForPostMessage = this.getPath(href);
                 this.uidForPostMessage = this.getPath(href);
                 this.setupPostMessage(uidForPostMessage);
+                var self = this;
+
+                var scrollTimer = null;
+                window.onscroll = function () {
+                    if (scrollTimer) {
+                        clearTimeout(scrollTimer);   // clear any previous pending timer
+                    }
+                    scrollTimer = setTimeout(function () {
+                        self.sendScrollEventToIframe(uidForPostMessage);
+                    }, 50);   // set new timer
+                };
             }
             else {
                 this.data.height = this.staticHeight;
@@ -133,6 +144,13 @@
                     this.getObjectNotationFromDataString(data)
                 );
                 this.processIStatsInstructions(this.data);
+                if (this.scrollInTheData()) {
+                    if (this.data.scrollDuration <= 0) {
+                        this.scrollToInstant(this.data.scrollPosition);
+                    } else {
+                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
+                    }
+                }
             }
         },
 
@@ -142,6 +160,10 @@
 
         getObjectNotationFromDataString: function (data) {
             return JSON.parse(data.split('::')[1]);
+        },
+
+        scrollInTheData: function () {
+            return (typeof(this.data.scrollPosition) !== 'undefined');
         },
 
         processCommunicationFromIframe: function (data) {
@@ -225,6 +247,53 @@
                     }
                 }
             }
+        },
+
+        getScrollY: function () {
+            return window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop || 0;
+        },
+
+        scrollToInstant: function (iframeScrollPosition) {
+            var scrollPosition = this.elm.getBoundingClientRect().top + this.getScrollY() + iframeScrollPosition;
+            window.scrollTo(0, scrollPosition);
+        },
+
+        scrollToAnimated: function (iframeScrollPosition, scrollDuration) {
+            var self = this;
+
+            var scrollY = this.getScrollY(),
+                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition;
+
+            var scrollStep = (scrollPosition - scrollY) / (scrollDuration / 15);
+
+            /* Timeout to cancel if something wierd happens  - prevent infinite loops */
+            var timeout = false;
+            setTimeout(function () { timeout = true; }, scrollDuration * 2);
+
+            var scrollInterval = setInterval(function () {
+                scrollY = self.getScrollY();
+                if (scrollY <= scrollPosition && !timeout) {
+                    window.scrollBy(0, scrollStep);
+                } else {
+                    clearInterval(scrollInterval);
+                }
+            }, 15);
+        },
+
+        sendScrollEventToIframe: function (uid) {
+            var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
+                iframeContainer = document.getElementById('iframe_newsspec_9881'),
+                bodyRect        = document.body.getBoundingClientRect(),
+                elemRect        = iframeContainer.getBoundingClientRect(),
+                iFrameOffset    = elemRect.top - bodyRect.top,
+                message = {
+                    parentScrollTop: parentScrollTop,
+                    iFrameOffset:    iFrameOffset,
+                    // http://stackoverflow.com/a/8876069
+                    viewportHeight:  Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+                };
+
+            iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
 
         // ###########################################

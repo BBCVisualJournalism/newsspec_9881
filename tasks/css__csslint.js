@@ -25,6 +25,7 @@ module.exports = function (grunt) {
             'vendor-prefix'                 : false,
             'universal-selector'            : false,
             'overqualified-elements'        : false,
+            'adjoining-classes'             : false,
             'force'                         : true
         },
         src: ['./content/<%= config.services.default %>/css/main.css']

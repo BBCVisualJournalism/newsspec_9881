@@ -36,7 +36,7 @@ define([
         slide = first + rest;
 
         news.$('.slides').append(slide);
-        news.pubsub.emit('slide:created', []);
+        news.pubsub.emit('slide:created', [{ 'fade' : false }]);
     };
 
     createFirstSlide = function() {
@@ -58,11 +58,15 @@ define([
         if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
         if (options !== '') html += options + '<hr>';
 
-        html += '</div>';
+        html += '</div><div class="coming-soon"></div>';
 
         this.count++;
 
         return html;
+    };
+
+    preCreateSlide = function() {
+
     };
 
     createOptions = function(optionsNode) {
@@ -88,8 +92,9 @@ define([
             var slide = news.$(this).closest('.option-wrapper').attr('data-slide-number'),
                 slideHtml = that.createSlide(slide);
 
-            news.$('.slides').append(slideHtml);
-            news.pubsub.emit('slide:created', []);
+            news.pubsub.emit('slide:prepare', [{ 'scroll' : true }]);
+            news.$('.coming-soon').replaceWith(slideHtml);
+            news.pubsub.emit('slide:created', [{ 'fade' : true }]);
         })
     };
 
@@ -122,21 +127,51 @@ define([
             } else {
                 $previousItem.height($currentItem.height());
             }
-        })
+        });
+
+        news.$('.slide.new').css({visibility:'visible', display:'none'})
     };
 
-    sidebarPair = function() {
+    sidebarEnlarge = function() {
         news.$('.sidebar').height(news.$('.sidebar').height() + 62);
+    };
+
+    scrollToSlide = function() {
+        var offset = news.$('.coming-soon').offset().top;
+        console.log(offset);
+        news.pubsub.emit('window:scrollTo', [offset, 400]);
     };
 
     createEventListeners = function() {
         var that = this;
 
-        news.pubsub.on('slide:created', function () {
+        news.pubsub.on('slide:prepare', function (obj) {
+            var scroll = obj.scroll;
+
+            if (scroll) that.scrollToSlide();
+        });
+
+        news.pubsub.on('slide:created', function (obj) {
+            var fade = obj.fade;
+
             that.bindOptions();
             that.updateNavigator();
             that.heightPair();
-            that.sidebarPair();
+            that.sidebarEnlarge();
+
+            if (fade) {
+                setTimeout(function(){
+                    news.$('.slide.new').fadeIn('slow', function() {
+                        news.$('.slide.new').removeClass('new');
+                    });
+                }, 350);
+            } else {
+                news.$('.slide.new').show().removeClass('new');
+            }
+        });
+
+        news.pubsub.on('window:scroll', function (obj) {
+            console.log('scroll!!!', obj);
         });
 
         $("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
@@ -149,13 +184,15 @@ define([
         init: init,
         createFirstSlide: createFirstSlide,
         createSlide: createSlide,
+        preCreateSlide: preCreateSlide,
         createOptions: createOptions,
         bindOptions: bindOptions,
         createEventListeners: createEventListeners,
         updateNavigator: updateNavigator,
         updateNavigatorNext: updateNavigatorNext,
         heightPair: heightPair,
-        sidebarPair: sidebarPair
+        sidebarEnlarge: sidebarEnlarge,
+        scrollToSlide: scrollToSlide
     }
 
 });
