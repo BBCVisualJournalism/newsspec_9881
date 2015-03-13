@@ -10,25 +10,42 @@ define([
     // setTimeout(function () {
     //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
     // }, 2000);
-
-    shareTools.init('.tempShareToolsHolder', {
-        storyPageUrl: document.referrer,
-        header:       'Share this page',
-        message:      'Custom message',
-        hashtag:      'BBCNewsGraphics',
-        template:     'dropdown' // 'default' or 'dropdown'
-    });
-
-    news.sendMessageToremoveLoadingImage();
+//    news.sendMessageToremoveLoadingImage();
 
     count = 0;
 
     init = function() {
         var slide,
             first,
-            rest;
+            rest,
+            whichIFrame = this.whichIFrame();
 
-        this.createEventListeners();
+        if (whichIFrame !== 'sidebar') {
+            this.mainSequence();
+            //this.sidebarSequence();
+        } else {
+            this.sidebarSequence();
+        }
+    };
+
+    whichIFrame = function() {
+        isIFrame = news.$('.main').hasClass('second') ? 'sidebar' : 'main';
+
+        return isIFrame;
+    };
+
+    mainSequence = function() {
+        var that = this;
+
+        shareTools.init('.tempShareToolsHolder', {
+            storyPageUrl: document.referrer,
+            header:       'Share this page',
+            message:      'Custom message',
+            hashtag:      'BBCNewsGraphics',
+            template:     'dropdown' // 'default' or 'dropdown'
+        });
+
+        this.createEventListenersMain();
 
         first = this.createFirstSlide();
         rest = this.createSlide(1);
@@ -36,7 +53,11 @@ define([
         slide = first + rest;
 
         news.$('.slides').append(slide);
-        news.pubsub.emit('slide:created', [{ 'fade' : false }]);
+        news.pubsub.emit('slide:created', [{ 'fade' : false, 'count' : that.count }]);
+    };
+
+    sidebarSequence = function() {
+        this.createEventListenersSidebar();
     };
 
     createFirstSlide = function() {
@@ -73,8 +94,9 @@ define([
         var options = '<div>';
 
         for (var i in optionsNode) {
-            options += '<div class="option-wrapper" data-slide-number="' + optionsNode[i].number + '"><div class="option">' + optionsNode[i].label + '</div>';
+            options += '<div class="option-wrapper" data-slide-number="' + optionsNode[i].number + '">';
             if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
+            options += '<div class="option">' + optionsNode[i].label + '</div>';
             options += '</div>';
         }
 
@@ -94,24 +116,24 @@ define([
 
             news.pubsub.emit('slide:prepare', [{ 'scroll' : true }]);
             news.$('.coming-soon').replaceWith(slideHtml);
-            news.pubsub.emit('slide:created', [{ 'fade' : true }]);
+            news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count }]);
         })
     };
 
-    updateNavigator = function() {
-        news.$('.sidebar').find('circle.step-' + this.count).attr('class', 'on step-' + this.count);
-        news.$('.sidebar').find('circle.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
-        news.$('.sidebar').find('path.step-' + this.count).not('.trail').attr('class', 'anim step-' + this.count);
+    updateNavigator = function(count) {
+        news.$('.sidebar').find('circle.step-' + count).attr('class', 'on step-' + count);
+        news.$('.sidebar').find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+        news.$('.sidebar').find('path.step-' + count).not('.trail').attr('class', 'anim step-' + count);
 
-        news.$('.sidebar').find('li.step-' + this.count).attr('class', 'on step-' + this.count);
+        news.$('.sidebar').find('li.step-' + count).attr('class', 'on step-' + count);
     };
 
-    updateNavigatorNext = function() {
-        news.$('.sidebar').find('circle.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
-        news.$('.sidebar').find('path.trail.step-' + (this.count + 1)).attr('class', 'trail next step-' + (this.count + 1));
-        news.$('.sidebar').find('path.step-' + (this.count + 1)).not('.trail').attr('class', 'next step-' + (this.count + 1));
+    updateNavigatorNext = function(count) {
+        news.$('.sidebar').find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+        news.$('.sidebar').find('path.trail.step-' + (count + 1)).attr('class', 'trail next step-' + (count + 1));
+        news.$('.sidebar').find('path.step-' + (count + 1)).not('.trail').attr('class', 'next step-' + (count + 1));
 
-        news.$('.sidebar').find('li.step-' + (this.count + 1)).attr('class', 'next step-' + (this.count + 1));
+        news.$('.sidebar').find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
     };
 
     heightPair = function() {
@@ -138,11 +160,10 @@ define([
 
     scrollToSlide = function() {
         var offset = news.$('.coming-soon').offset().top;
-        console.log(offset);
         news.pubsub.emit('window:scrollTo', [offset, 400]);
     };
 
-    createEventListeners = function() {
+    createEventListenersMain = function() {
         var that = this;
 
         news.pubsub.on('slide:prepare', function (obj) {
@@ -152,12 +173,11 @@ define([
         });
 
         news.pubsub.on('slide:created', function (obj) {
+            console.log('ok this is original');
             var fade = obj.fade;
 
             that.bindOptions();
-            that.updateNavigator();
             that.heightPair();
-            that.sidebarEnlarge();
 
             if (fade) {
                 setTimeout(function(){
@@ -169,25 +189,38 @@ define([
                 news.$('.slide.new').show().removeClass('new');
             }
         });
+    };
 
-        news.pubsub.on('window:scroll', function (obj) {
-            console.log('scroll!!!', obj);
+    createEventListenersSidebar = function() {
+        var that = this;
+
+        news.pubsub.on('slide:created', function (obj) {
+            var count = obj.count;
+
+            console.log('ok this is weird');
+            that.count = count;
+            that.updateNavigator(count);
+            that.sidebarEnlarge();
         });
 
-        $("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
-            that.updateNavigatorNext();
+        news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
+            that.updateNavigatorNext(that.count);
     	});
     };
 
     return {
         count: count,
         init: init,
+        mainSequence: mainSequence,
+        sidebarSequence: sidebarSequence,
+        whichIFrame: whichIFrame,
         createFirstSlide: createFirstSlide,
         createSlide: createSlide,
         preCreateSlide: preCreateSlide,
         createOptions: createOptions,
         bindOptions: bindOptions,
-        createEventListeners: createEventListeners,
+        createEventListenersMain: createEventListenersMain,
+        createEventListenersSidebar: createEventListenersSidebar,
         updateNavigator: updateNavigator,
         updateNavigatorNext: updateNavigatorNext,
         heightPair: heightPair,

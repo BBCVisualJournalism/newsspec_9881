@@ -1,18 +1,63 @@
-define(['jquery'], function ($) {
+define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, parser) {
     var hostCommunicator = {
+        iFrameIndex: false,
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
-            var externalHostCommunicator = this;
             this.setHeight();
             this.startWatching();
             if (this.postMessageAvailable) {
                 this.setupPostMessage();
             }
+            else {
+                this.setupIframeBridge();
+            }
+
+            this.subscribeToEvents();
+
+            this.sendDataToHost({
+                iFrameReady: true
+            });
+        },
+        subscribeToEvents: function () {
+            var externalHostCommunicator = this;
+
             $.on('istats', function (actionType, actionName, viewLabel) {
                 externalHostCommunicator.setHeight();
                 externalHostCommunicator.registerIstatsCall(actionType, actionName, viewLabel);
             });
-            $.on('window:scrollTo', this.sendScrollToHost);
+
+            $.on('event_to_send_to_host', function (announcement, details) {
+                externalHostCommunicator.sendDataToHost({
+                    pubsub: {
+                        originator:   externalHostCommunicator.iFrameIndex,
+                        announcement: announcement,
+                        details:      details
+                    }
+                });
+            });
+        },
+        sendDataToHost: function (data) {
+            if (this.postMessageAvailable) {
+                this.sendDataByPostMessage(data);
+            } else {
+                this.sendDataByIframeBridge(data);
+            }
+        },
+        sendDataByPostMessage: function (message) {
+            var talker_uid = window.location.pathname;
+            message = hostCommunicator.constructMessage(message);
+            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+        },
+        sendDataByIframeBridge: function (message) {
+            window.iframeBridge = hostCommunicator.constructMessage(message);
+        },
+        constructMessage: function (additionalMessage) {
+            var message = {
+                height:           hostCommunicator.height,
+                hostPageCallback: hostCommunicator.hostPageCallback
+            };
+            $.extend(message, additionalMessage || {});
+            return message;
         },
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
@@ -29,46 +74,29 @@ define(['jquery'], function ($) {
             }
         },
         setupPostMessage: function () {
-            var self = this;
-
             window.setInterval(this.sendDataByPostMessage, 32);
-
-            window.addEventListener('message', function (message) {
-                var data = self.getObjectNotationFromDataString(message.data);
-
-                if (data) {
-                    var parentScrollTop = data.parentScrollTop,
-                        iFrameOffset    = data.iFrameOffset,
-                        iFrameHeight    = $('.main').outerHeight(),
-                        viewportHeight  = data.viewportHeight,
-                        windowScrollEventData = {
-                            parentScrollTop: parentScrollTop,
-                            iFrameOffset:    iFrameOffset,
-                            iFrameHeight:    iFrameHeight,
-                            viewportHeight:  viewportHeight
-                        };
-
-                    $.emit('window:scroll', [windowScrollEventData]);
-                }
-
-            }, false);
+            window.addEventListener('message', this.setIFrameIndexFromPost, false);
         },
-        getObjectNotationFromDataString: function (data) {
-            if (data.indexOf('::') > -1) {
-                return JSON.parse(data.split('::')[1]);
-            }
-            return false;
+        setupIframeBridge: function () {
+            window.setInterval(this.exchangeDataByIframeBridge, 100);
+            window.istatsQueue = [];
         },
-        sendDataByPostMessage: function (istatsData) {
-            var talker_uid = window.location.pathname,
-                message = {
-                    height:           this.height,
-                    hostPageCallback: hostCommunicator.hostPageCallback
-                };
-            if (istatsData) {
-                message.istats = istatsData;
+        exchangeDataByIframeBridge: function () {
+            if (window.iframeBridge !== false) {
+                hostCommunicator.setIFrameIndex(window.iframeBridge);
+            } else {
+                hostCommunicator.sendDataByIframeBridge();
             }
-            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+        },
+        setIFrameIndexFromPost: function (event) {
+            hostCommunicator.setIFrameIndex(parser.parseJSON(event));
+        },
+        setIFrameIndex: function (data) {
+            if (data.announcement === 'setting_index_from_host') {
+                hostCommunicator.iFrameIndex = data.details[0];
+                // only need to set the iframe index once
+                window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
+            }
         },
         startWatching: function () {
             window.setInterval(this.setHeight, 32);
@@ -82,45 +110,11 @@ define(['jquery'], function ($) {
             if ($('.main').length > 0) {
                 heightValues.push($('.main')[0].scrollHeight);
             }
-            this.height = Math.max.apply(Math, heightValues);
+            hostCommunicator.height = Math.max.apply(Math, heightValues);
         },
         hostPageCallback: false,
         setHostPageInitialization: function (callback) {
             hostCommunicator.hostPageCallback = callback.toString();
-        },
-        sendMessageToremoveLoadingImage: function () {
-            var message,
-                funcToExecute,
-                iframeUID = this.getValueFromQueryString('iframeUID');
-
-            funcToExecute = '' +
-                'var iframeDivContainer = document.getElementById("' + iframeUID + '--bbc-news-visual-journalism-loading-spinner");' +
-                'if (iframeDivContainer) {' +
-                '    iframeDivContainer.parentNode.removeChild(iframeDivContainer);' +
-                '}';
-
-            message = {
-                'hostPageCallback' : funcToExecute
-            };
-
-            if (this.postMessageAvailable) {
-                window.parent.postMessage(window.location.pathname + '::' + JSON.stringify(message), '*');
-            }
-        },
-        getValueFromQueryString: function (name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
-                results = regex.exec(location.search);
-            return results == null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        },
-        sendScrollToHost: function (scrollPosition, scrollDuration) {
-            var talker_uid = window.location.pathname,
-            message = {
-                scrollPosition: scrollPosition,
-                scrollDuration: scrollDuration,
-                hostPageCallback: false
-            };
-            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         }
     };
     return hostCommunicator;

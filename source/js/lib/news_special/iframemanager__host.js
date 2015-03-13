@@ -1,54 +1,46 @@
 (function () {
 
-    var IframeWatcher = function () {
-        var self = this;
-        this.linkId       = '<%= iframeUid %>';
-        this.scaffoldLite = '<%= scaffoldLite %>';
-        this.initIstatsIfRequiredThen(function () {
-            self.createIframe();
-        });
+    var IframeWatcher = function (linkId) {
+        if (this.istatsCanBeUsed()) {
+            this.addIstatsDependency(linkId);
+        }
+        else {
+            this.createIframe(linkId);
+        }
         this.updateSizeWhenWindowResizes();
     };
 
     IframeWatcher.prototype = {
-
-        updateSizeWhenWindowResizes: function () {
-            var self = this;
-            this.onEvent(window, 'resize', function () {
-                self.setDimensions();
+        postMessageAvailable: (window.postMessage ? true : false),
+        istatsCanBeUsed: function () {
+            return ('require' in window) && this.onBbcDomain();
+        },
+        addIstatsDependency: function (linkId) {
+            var iframeWatcher = this;
+            require(['istats-1'], function (istats) {
+                iframeWatcher.istats = istats;
+                iframeWatcher.createIframe(linkId);
             });
         },
-
-        onEvent: function (domElement, eventName, callback, useCapture) {
-            if (useCapture === undefined) {
-                useCapture = false;
-            }
-
-            if (domElement.addEventListener) {
-                domElement.addEventListener(eventName, callback, useCapture);
-            } else {
-                domElement.attachEvent('on' + eventName, callback);
-            }
+        updateSizeWhenWindowResizes: function () {
+            var iframeWatcher = this;
+            window.addEventListener('resize', function () {
+                iframeWatcher.setDimensions();
+            }, false);
         },
-
         data: {},
+        istatsQueue: [],
+        updateFrequency: 32,
+        createIframe: function (linkId) {
 
-        updateFrequency: 60,
-
-        createIframe: function () {
-
-            var linkId        = this.linkId,
-                link          = document.getElementById(linkId),
-                href          = link.href,
-                token         = link.parentNode.className,
+            var link         = document.getElementById(linkId),
+                href         = link.href,
+                token        = link.parentNode.className,
+                staticHeight = link.getAttribute('data-static-iframe-height'),
                 iframeWatcher = this,
                 hostId        = this.getWindowLocationOrigin(),
                 urlParams     = window.location.hash || '',
-                hostUrl       = window.location.href.replace(urlParams, ''),
                 onBBC         = this.onBbcDomain();
-
-            this.staticHeight = link.getAttribute('data-static-iframe-height');
-            this.addLoadingSpinner(link, linkId);
 
             if (this.hostIsNewsApp(token)) {
                 hostId = token;
@@ -63,7 +55,7 @@
 
             this.decideHowToTalkToIframe(href);
 
-            this.elm.src = href + '&hostid=' + hostId.split('//')[1] + '&hostUrl=' + hostUrl + '&iframeUID=' + linkId + '&onbbcdomain=' + onBBC + urlParams;
+            this.elm.src = href + '?hostid=' + hostId.split('//')[1] + '&onbbcdomain=' + onBBC + urlParams;
 
             link.parentNode.appendChild(this.elm);
             link.parentNode.removeChild(link);
@@ -75,25 +67,13 @@
                 iframeWatcher.getAnyInstructionsFromIframe();
                 iframeWatcher.setDimensions();
             });
-
-            this.removeAppWebViewLinksFromHostPage();
-            this.removeFallbackImageFromHostPage();
         },
-
-        addLoadingSpinner: function (link, iframeUID) {
-            var spinnerHolder = document.createElement('div');
-            spinnerHolder.id  = iframeUID + '--bbc-news-visual-journalism-loading-spinner';
-            spinnerHolder.className = 'bbc-news-visual-journalism-loading-spinner';
-            link.parentNode.appendChild(spinnerHolder);
-        },
-
         handleIframeLoad: function (startIframing) {
             // IMPORTANT: Had to make this an onload because the
             // polyfilling and jquery on one page causes issues
-            this.onEvent(window, 'load', function () {
+            window.addEventListener('load', function () {
                 startIframing();
             }, true);
-
             if (this.elm.onload) {
                 this.elm.onload = startIframing;
             }
@@ -103,243 +83,70 @@
                 this.elm.attachEvent('onload', startIframing);
             }
         },
-
         decideHowToTalkToIframe: function (href) {
             if (window.postMessage) { // if window.postMessage is supported, then support for JSON is assumed
                 var uidForPostMessage = this.getPath(href);
                 this.uidForPostMessage = this.getPath(href);
                 this.setupPostMessage(uidForPostMessage);
-                var self = this;
-
-                var scrollTimer = null;
-                window.onscroll = function () {
-                    if (scrollTimer) {
-                        clearTimeout(scrollTimer);   // clear any previous pending timer
-                    }
-                    scrollTimer = setTimeout(function () {
-                        self.sendScrollEventToIframe(uidForPostMessage);
-                    }, 50);   // set new timer
-                };
+            }
+            else if (href.search(window.location.protocol + '//' + window.location.hostname) > -1) {
+                this.setupIframeBridge();
             }
             else {
-                this.data.height = this.staticHeight;
+                this.data.height = staticHeight;
                 this.elm.scrolling = 'yes';
             }
         },
-
         onBbcDomain: function () {
             return window.location.host.search('bbc.co') > -1;
         },
-
         setupPostMessage: function (uid) {
             var iframeWatcher = this;
-            this.onEvent(window, 'message', function (e) {
+            window.addEventListener('message', function (e) {
                 iframeWatcher.postMessageCallback(e.data);
-            });
+            }, false);
         },
-
         postMessageCallback: function (data) {
             if (this.postBackMessageForThisIframe(data)) {
                 this.processCommunicationFromIframe(
                     this.getObjectNotationFromDataString(data)
                 );
-                this.processIStatsInstructions(this.data);
-                if (this.scrollInTheData()) {
-                    if (this.data.scrollDuration <= 0) {
-                        this.scrollToInstant(this.data.scrollPosition);
-                    } else {
-                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
-                    }
+                if (this.istatsInTheData()) {
+                    this.addToIstatsQueue();
+                    this.emptyThisIstatsQueue(this.istatsQueue);
                 }
             }
         },
-
         postBackMessageForThisIframe: function (data) {
             return data && (data.split('::')[0] === this.uidForPostMessage);
         },
-
         getObjectNotationFromDataString: function (data) {
             return JSON.parse(data.split('::')[1]);
         },
-
-        scrollInTheData: function () {
-            return (typeof(this.data.scrollPosition) !== 'undefined');
+        istatsInTheData: function () {
+            return this.data.istats && this.data.istats.actionType;
         },
-
-        processCommunicationFromIframe: function (data) {
-            this.data = data;
-            this.setDimensions();
-            this.getAnyInstructionsFromIframe();
-        },
-
-        hostIsNewsApp: function (token) {
-            return (token.indexOf('bbc_news_app') > -1);
-        },
-
-        getIframeContentHeight: function () {
-            if (this.data.height) {
-                this.lastRecordedHeight = this.data.height;
-            }
-            return this.lastRecordedHeight;
-        },
-
-        setDimensions: function () {
-            this.elm.width  = this.elm.parentNode.clientWidth;
-            this.elm.height = this.getIframeContentHeight();
-        },
-
-        getAnyInstructionsFromIframe: function () {
-            if (
-                this.data.hostPageCallback &&
-                (!this.iframeInstructionsRan)
-            ) {
-                /* jshint evil:true */
-                (new Function(this.data.hostPageCallback)());
-                this.iframeInstructionsRan = true;
-            }
-        },
-
-        getPath: function (url) {
-            var urlMinusProtocol = url.replace('http://', '');
-            return urlMinusProtocol.substring(urlMinusProtocol.indexOf('/')).split('?')[0];
-        },
-
-        getWindowLocationOrigin: function () {
-            if (window.location.origin) {
-                return window.location.origin;
-            }
-            else {
-                return window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-            }
-        },
-
-        removeAppWebViewLinksFromHostPage: function () {
-            this.removeElementFromHostPage('a', 'href', window.location.pathname);
-        },
-
-        removeFallbackImageFromHostPage: function () {
-            var imageName = this.getQueryStringValue('fallback');
-            if (imageName) {
-                this.removeElementFromHostPage('img', 'src', imageName);
-            }
-        },
-
-        getQueryStringValue: function (name) {
-            var queryString = '<!--#echo var="QUERY_STRING" -->',
-                regex       = new RegExp('(?:[\\?&]|&amp;)' + name + '=([^&#]*)'),
-                results     = regex.exec(queryString);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        },
-
-        removeElementFromHostPage: function (tagName, attrName, attrValue) {
-            var element;
-            if (typeof document.querySelector !== 'undefined') {
-                element = document.querySelector(tagName + '[' + attrName + '*="' + attrValue + '"]');
-                if (element) {
-                    element.parentNode.removeChild(element);
-                }
-            } else {
-                // Support for older browsers
-                element = document.getElementsByTagName(tagName);
-                for (var idx = 0; idx < element.length; ++idx) {
-                    if (element[idx][attrName].indexOf(attrValue) >= 0) {
-                        element[idx].parentNode.removeChild(element[idx]);
-                    }
-                }
-            }
-        },
-
-        getScrollY: function () {
-            return window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop || 0;
-        },
-
-        scrollToInstant: function (iframeScrollPosition) {
-            var scrollPosition = this.elm.getBoundingClientRect().top + this.getScrollY() + iframeScrollPosition;
-            window.scrollTo(0, scrollPosition);
-        },
-
-        scrollToAnimated: function (iframeScrollPosition, scrollDuration) {
-            var self = this;
-
-            var scrollY = this.getScrollY(),
-                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition;
-
-            var scrollStep = (scrollPosition - scrollY) / (scrollDuration / 15);
-
-            /* Timeout to cancel if something wierd happens  - prevent infinite loops */
-            var timeout = false;
-            setTimeout(function () { timeout = true; }, scrollDuration * 2);
-
-            var scrollInterval = setInterval(function () {
-                scrollY = self.getScrollY();
-                if (scrollY <= scrollPosition && !timeout) {
-                    window.scrollBy(0, scrollStep);
-                } else {
-                    clearInterval(scrollInterval);
-                }
-            }, 15);
-        },
-
-        sendScrollEventToIframe: function (uid) {
-            var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
-                iframeContainer = document.getElementById('iframe_newsspec_9881'),
-                bodyRect        = document.body.getBoundingClientRect(),
-                elemRect        = iframeContainer.getBoundingClientRect(),
-                iFrameOffset    = elemRect.top - bodyRect.top,
-                message = {
-                    parentScrollTop: parentScrollTop,
-                    iFrameOffset:    iFrameOffset,
-                    // http://stackoverflow.com/a/8876069
-                    viewportHeight:  Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-                };
-
-            iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
-        },
-
-        // ###########################################
-        // #### ALL ISTATS FUNCTIONALITY IS BELOW ####
-        // ###########################################
-
-        initIstatsIfRequiredThen: function (initIframe) {
-            var self = this;
-            if (this.scaffoldLite === 'false' && this.onBbcDomain()) {
-                require(['istats-1'], function (istats) {
-                    self.istats = istats;
-                    initIframe();
-                });
-            } else {
-                // mock iStats behaviour
-                self.istats = {
-                    log: function () {}
-                };
-                initIframe();
-            }
-        },
-
-        istatsQueue: [],
-
-        processIStatsInstructions: function (data) {
-            if (this.istatsInTheData(data)) {
-                this.addToIstatsQueue(data);
-                this.emptyQueue(this.istatsQueue);
-            }
-        },
-
-        istatsInTheData: function (data) {
-            return data.istats && data.istats.actionType;
-        },
-
-        addToIstatsQueue: function (data) {
+        addToIstatsQueue: function () {
             this.istatsQueue.push({
-                'actionType': data.istats.actionType,
-                'actionName': data.istats.actionName,
-                'viewLabel':  data.istats.viewLabel
+                'actionType': this.data.istats.actionType,
+                'actionName': this.data.istats.actionName,
+                'viewLabel':  this.data.istats.viewLabel
             });
         },
-
+        setupIframeBridge: function () {
+            var iframeWatcher = this;
+            window.setInterval(function () {
+                iframeWatcher.iFrameBridgeCallback();
+            }, iframeWatcher.updateFrequency);
+        },
+        iFrameBridgeCallback: function () {
+            if (this.elm.contentWindow.iframeBridge) {
+                this.processCommunicationFromIframe(this.elm.contentWindow.iframeBridge);
+                this.emptyThisIstatsQueue(this.elm.contentWindow.istatsQueue);
+            }
+        },
         istatsQueueLocked: false,
-
-        emptyQueue: function (queue) {
+        emptyThisIstatsQueue: function (queue) {
             var istatCall;
             if (this.istats && queue) {
                 this.istatsQueueLocked = true;
@@ -349,23 +156,99 @@
                 }
                 this.istatsQueueLocked = false;
             }
+        },
+        hostIsNewsApp: function (token) {
+            return (token.indexOf('bbc_news_app') > -1);
+        },
+        getIframeContentHeight: function () {
+            if (this.data.height) {
+                this.lastRecordedHeight = this.data.height;
+            }
+            return this.lastRecordedHeight;
+        },
+        setDimensions: function () {
+            this.elm.width  = this.elm.parentNode.clientWidth;
+            this.elm.height = this.getIframeContentHeight();
+        },
+        getAnyInstructionsFromIframe: function () {
+            if (
+                this.data.hostPageCallback &&
+                (!this.iframeInstructionsRan)
+            ) {
+                /* jshint evil:true */
+                eval('var func = ' + this.data.hostPageCallback);
+                func();
+                this.iframeInstructionsRan = true;
+            } else if (this.data.iFrameReady) {
+                this.setupIframeCommunication();
+            }
+        },
+        getPath: function (url) {
+            var urlMinusProtocol = url.replace('http://', '');
+            return urlMinusProtocol.substring(urlMinusProtocol.indexOf('/')).split('?')[0];
+        },
+        getWindowLocationOrigin: function () {
+            if (window.location.origin) {
+                return window.location.origin;
+            }
+            else {
+                return window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+            }
+        },
+        processCommunicationFromIframe: function (data) {
+            this.data = data;
+            this.setDimensions();
+            this.getAnyInstructionsFromIframe();
+            this.forwardAnyPubsubsFromIframe();
+        },
+        setupIframeCommunication: function () {
+            this.initSubscribersList();
+            this.addIframeToSubscribers(this.elm);
+            this.giveIFrameItsIndex(this.elm);
+        },
+        initSubscribersList: function () {
+            if (window.newsspec_iframes_subscribed === undefined) {
+                window.newsspec_iframes_subscribed = [];
+            }
+        },
+        addIframeToSubscribers: function (iFrame) {
+            window.newsspec_iframes_subscribed.push(this.elm);
+        },
+        giveIFrameItsIndex: function (iFrame) {
+            var iFrameIndex = window.newsspec_iframes_subscribed.length - 1;
+
+            this.forwardPubsubToIFrame(iFrame, {
+                announcement: 'setting_index_from_host',
+                details:      [iFrameIndex]
+            });
+        },
+        forwardAnyPubsubsFromIframe: function () {
+            var iFrameThatSentThePubsub;
+
+            if (this.data.pubsub) {
+                iFrameThatSentThePubsub = this.data.pubsub.originator;
+                this.forwardPubsubToAllBut(iFrameThatSentThePubsub);
+            }
+        },
+        forwardPubsubToAllBut: function (iFrameOriginatorIndex) {
+            var iframes = window.newsspec_iframes_subscribed;
+
+            for (var i = 0; i < iframes.length; i++) {
+                if (i !== iFrameOriginatorIndex) {
+                    this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
+                }
+            }
+        },
+        forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
+            if (this.postMessageAvailable) {
+                iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
+            }
+            else {
+                // communicate through iFrame bridge or cookie fallback
+            }
         }
     };
 
-    function cutsTheMustard() {
-
-        var modernDevice =
-                document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#BasicStructure', '1.1') &&
-                'querySelector' in document &&
-                'localStorage' in window &&
-                'addEventListener' in window,
-            atLeastIE8   = !!(document.documentMode && (document.documentMode >= 8));
-
-        return modernDevice || atLeastIE8;
-    }
-
-    if (cutsTheMustard()) {
-        var iframe = new IframeWatcher();
-    }
+    var iframe = new IframeWatcher('<%= iframeUid %>');
 
 })();

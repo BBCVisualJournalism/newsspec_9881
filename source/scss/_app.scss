@@ -12,7 +12,7 @@
             }
         }
         .coming-soon {
-            height: 900px;
+            height: 600px;
         }
         h2 {
             padding-bottom: 9px;
@@ -55,7 +55,70 @@
         }
     }
     .sidebar {
-        display: none;
+        display: block;
+        width: 142px;
+        border: 2px solid #ddd;
+        position: absolute;
+        right: 0;
+        overflow: hidden;
+        height: 165px;
+        .overlay {
+            display: block;
+            position: absolute;
+            width: 100%;
+            overflow: hidden;
+            height: 100%;
+            z-index: 1001;
+            h4 {
+                text-align: center;
+                &.end {
+                    display: none;
+                }
+            }
+            li {
+                list-style: none;
+                position: absolute;
+                color: transparent;
+                &.step-1 {
+                    top: 61px;
+                    left: 65px;
+                }
+                &.step-2 {
+                    top: 122px;
+                    left: 38px;
+                }
+                &.step-3 {
+                    top: 181px;
+                    left: 76px;
+                }
+                &.step-4 {
+                    top: 246px;
+                    left: 90px;
+                }
+                &.step-5 {
+                    top: 305px;
+                    left: 55px;
+                }
+                &.step-6 {
+                    top: 371px;
+                    left: 54px;
+                }
+                &.step-7 {
+                    top: 433px;
+                    left: 94px;
+                }
+                &.step-8 {
+                    top: 495px;
+                    left: 70px;
+                }
+                &.next {
+                    color: #404040;
+                }
+                &.on {
+                    color: #fff;
+                }
+            }
+        }
     }
     svg {
         transform: translate(-250px,-70px);
@@ -111,7 +174,9 @@
   }
 }
 
-
+.main.second {
+    overflow: visible;
+}
 
 /*
 .main {
@@ -157,72 +222,6 @@
             }
             .option-wrapper {
                 width: 45%;
-            }
-        }
-        .sidebar {
-            display: block;
-            width: 142px;
-            border: 2px solid #ddd;
-            position: absolute;
-            right: 0;
-            overflow: hidden;
-            height: 165px;
-            .overlay {
-                display: block;
-                position: absolute;
-                width: 100%;
-                overflow: hidden;
-                height: 100%;
-                z-index: 1001;
-                h4 {
-                    text-align: center;
-                    &.end {
-                        display: none;
-                    }
-                }
-                li {
-                    list-style: none;
-                    position: absolute;
-                    color: transparent;
-                    &.step-1 {
-                        top: 61px;
-                        left: 65px;
-                    }
-                    &.step-2 {
-                        top: 122px;
-                        left: 38px;
-                    }
-                    &.step-3 {
-                        top: 181px;
-                        left: 76px;
-                    }
-                    &.step-4 {
-                        top: 246px;
-                        left: 90px;
-                    }
-                    &.step-5 {
-                        top: 305px;
-                        left: 55px;
-                    }
-                    &.step-6 {
-                        top: 371px;
-                        left: 54px;
-                    }
-                    &.step-7 {
-                        top: 433px;
-                        left: 94px;
-                    }
-                    &.step-8 {
-                        top: 495px;
-                        left: 70px;
-                    }
-                    &.next {
-                        color: #404040;
-                    }
-                    &.on {
-                        color: #fff;
-                    }
-                }
             }
         }
     }

@@ -1,5 +1,5 @@
-define(['jquery'], function($) {
-    
+define(['jquery', 'lib/news_special/iframemanager__communicator'], function($, IFrameCommunicator) {
+
     /*!
      * jQuery Tiny Pub/Sub - v0.6 - 1/10/2011
      * http://benalman.com/
@@ -11,14 +11,14 @@ define(['jquery'], function($) {
      * We purposely use an older version of the Tiny Pub/Sub implementation
      * because we want to keep API parity with existing code.
      * Newer versions meant the 'event' object would be passed as the first
-     * argument to the subscriber/callback and this meant changing all our 
-     * EventEmitter code. I decided it was best to avoid that issue and use 
-     * an older version whose only difference is to strip off the first 
+     * argument to the subscriber/callback and this meant changing all our
+     * EventEmitter code. I decided it was best to avoid that issue and use
+     * an older version whose only difference is to strip off the first
      * argument so as to result in a true refactoring where we don't tamper
      * with the interface, just the implementation.
      */
 
-    // Create a "dummy" jQuery object on which to bind, `off` and `trigger` event handlers. 
+    // Create a "dummy" jQuery object on which to bind, `off` and `trigger` event handlers.
     var o = $({});
 
     /*
@@ -50,5 +50,6 @@ define(['jquery'], function($) {
     // Publish a topic. Works exactly like trigger.
     $.emit = function() {
         o.trigger.apply( o, arguments );
+        IFrameCommunicator.forwardToHost(arguments[0], arguments[1]);
     };
 });

@@ -1,0 +1,28 @@
+<%
+    iframeUid = "responsive-iframe-" + Math.floor(Math.random() * 100000000);
+%>
+<script>
+    if ((!document.addEventListener) || (!Array.prototype.indexOf) || (!Array.prototype.forEach) ) {
+        document.write('<sc' + 'ript src="<%= path %>/<%= vocab_dir %>/js/lib/vendors/legacy-ie-polyfills.js?v=<%= version %>"></sc' + 'ript>');
+    }
+</script>
+<style>
+.fixedFrame {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    width: 17%;
+}
+@media only screen and (max-width: 800px) {
+    .fixedFrame {
+        position: static;
+        width: 100%;
+        top: auto;
+        right: auto;
+    }
+}
+</style>
+<div class="fixedFrame">
+    <a href="<%= path %>/<%= vocab_dir %>/sidebar.html?v=<%= version %>" id="<%= iframeUid %>" data-static-iframe-height="600">iFrame</a>
+</div>
+<script type="text/javascript"><%= include("../js/lib/news_special/iframemanager__host.js", {iframeUid: iframeUid}) %></script>

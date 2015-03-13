@@ -8,6 +8,8 @@ module.exports = function (grunt) {
     var projectFiles = {
         'index.html': 'index.html.tmpl',
         'index.inc':  'index.inc.tmpl',
+        'sidebar.html': 'sidebar.html.tmpl',
+        'sidebar.inc':  'sidebar.inc.tmpl',
         'test.html':  'test.html.tmpl',
         'js/data/slides.js':  'data.slides.js.tmpl'
     };
