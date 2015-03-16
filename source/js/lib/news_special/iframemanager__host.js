@@ -89,9 +89,6 @@
                 this.uidForPostMessage = this.getPath(href);
                 this.setupPostMessage(uidForPostMessage);
             }
-            else if (href.search(window.location.protocol + '//' + window.location.hostname) > -1) {
-                this.setupIframeBridge();
-            }
             else {
                 this.data.height = staticHeight;
                 this.elm.scrolling = 'yes';
@@ -115,6 +112,13 @@
                     this.addToIstatsQueue();
                     this.emptyThisIstatsQueue(this.istatsQueue);
                 }
+                if (this.scrollInTheData()) {
+                    if (this.data.scrollDuration <= 0) {
+                        this.scrollToInstant(this.data.scrollPosition);
+                    } else {
+                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
+                    }
+                }
             }
         },
         postBackMessageForThisIframe: function (data) {
@@ -122,6 +126,9 @@
         },
         getObjectNotationFromDataString: function (data) {
             return JSON.parse(data.split('::')[1]);
+        },
+        scrollInTheData: function () {
+            return (typeof(this.data.scrollPosition) !== 'undefined');
         },
         istatsInTheData: function () {
             return this.data.istats && this.data.istats.actionType;
@@ -132,18 +139,6 @@
                 'actionName': this.data.istats.actionName,
                 'viewLabel':  this.data.istats.viewLabel
             });
-        },
-        setupIframeBridge: function () {
-            var iframeWatcher = this;
-            window.setInterval(function () {
-                iframeWatcher.iFrameBridgeCallback();
-            }, iframeWatcher.updateFrequency);
-        },
-        iFrameBridgeCallback: function () {
-            if (this.elm.contentWindow.iframeBridge) {
-                this.processCommunicationFromIframe(this.elm.contentWindow.iframeBridge);
-                this.emptyThisIstatsQueue(this.elm.contentWindow.istatsQueue);
-            }
         },
         istatsQueueLocked: false,
         emptyThisIstatsQueue: function (queue) {
@@ -246,7 +241,50 @@
             else {
                 // communicate through iFrame bridge or cookie fallback
             }
+        },
+        getScrollY: function () {
+            return window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop || 0;
+        },
+        scrollToInstant: function (iframeScrollPosition) {
+            var scrollPosition = this.elm.getBoundingClientRect().top + this.getScrollY() + iframeScrollPosition;
+            window.scrollTo(0, scrollPosition);
+        },
+        scrollToAnimated: function (iframeScrollPosition, scrollDuration) {
+            var self = this;
+
+            var scrollY = this.getScrollY(),
+                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition;
+
+            var scrollStep = (scrollPosition - scrollY) / (scrollDuration / 15);
+
+            /* Timeout to cancel if something wierd happens  - prevent infinite loops */
+            var timeout = false;
+            setTimeout(function () { timeout = true; }, scrollDuration * 2);
+
+            var scrollInterval = setInterval(function () {
+                scrollY = self.getScrollY();
+                if (scrollY <= scrollPosition && !timeout) {
+                    window.scrollBy(0, scrollStep);
+                } else {
+                    clearInterval(scrollInterval);
+                }
+            }, 15);
+        },
+        sendScrollEventToIframe: function (uid) {
+            var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
+                iframeContainer = document.getElementById('iframe_newsspec_9881'),
+                bodyRect        = document.body.getBoundingClientRect(),
+                elemRect        = iframeContainer.getBoundingClientRect(),
+                iFrameOffset    = elemRect.top - bodyRect.top,
+                message = {
+                    parentScrollTop: parentScrollTop,
+                    iFrameOffset:    iFrameOffset,
+                    // http://stackoverflow.com/a/8876069
+                    viewportHeight:  Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+                };
+            iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         }
+
     };
 
     var iframe = new IframeWatcher('<%= iframeUid %>');

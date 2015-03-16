@@ -10,19 +10,15 @@ define([
     // setTimeout(function () {
     //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
     // }, 2000);
-//    news.sendMessageToremoveLoadingImage();
+    news.sendMessageToremoveLoadingImage();
 
     count = 0;
 
     init = function() {
-        var slide,
-            first,
-            rest,
-            whichIFrame = this.whichIFrame();
+        var whichIFrame = this.whichIFrame();
 
         if (whichIFrame !== 'sidebar') {
             this.mainSequence();
-            //this.sidebarSequence();
         } else {
             this.sidebarSequence();
         }
@@ -35,7 +31,10 @@ define([
     };
 
     mainSequence = function() {
-        var that = this;
+        var that = this,
+            slide,
+            first,
+            rest;
 
         shareTools.init('.tempShareToolsHolder', {
             storyPageUrl: document.referrer,
@@ -69,12 +68,14 @@ define([
     createSlide = function(number) {
         var slide = slides['slide-' + number],
             content = slide['content'],
+            image = slide['image'],
             title = slide['title'],
             subtitle = slide['subtitle'],
             options = this.createOptions(slide['options']),
             html = '<div class="slide new">';
 
         if (title !== '') html +=  '<h2>' + title + '</h2>';
+        if (image !== '') html += '<img src="' + image + '" />';        
         if (content !== '') html += '<p>' + content + '</p>';
         if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
         if (options !== '') html += options + '<hr>';
@@ -173,7 +174,7 @@ define([
         });
 
         news.pubsub.on('slide:created', function (obj) {
-            console.log('ok this is original');
+            console.log('ok this is original', obj);
             var fade = obj.fade;
 
             that.bindOptions();
@@ -197,7 +198,7 @@ define([
         news.pubsub.on('slide:created', function (obj) {
             var count = obj.count;
 
-            console.log('ok this is weird');
+            console.log('ok this is weird', obj);
             that.count = count;
             that.updateNavigator(count);
             that.sidebarEnlarge();

@@ -5,6 +5,7 @@ define([], function () {
         <% for (var a = 1; a < 43; a++) { %>
                 "slide-<%= a %>" : {
                     "content" : "<%= obj['slide_' + a] %>",
+                    "image" : "<%= pathStatic %>/<%= vocab_dir %>/img/730/<%= obj['slide_' + a + '_image'] %>",
                     "title" : "<%= obj['slide_' + a + '_title'] %>",
                     "subtitle" : "<%= obj['slide_' + a + '_subtitle'] %>",
                     "options" : {

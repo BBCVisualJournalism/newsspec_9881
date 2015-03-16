@@ -35,12 +35,12 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
                     }
                 });
             });
+
+            $.on('window:scrollTo', this.sendScrollToHost);
         },
         sendDataToHost: function (data) {
             if (this.postMessageAvailable) {
                 this.sendDataByPostMessage(data);
-            } else {
-                this.sendDataByIframeBridge(data);
             }
         },
         sendDataByPostMessage: function (message) {
@@ -48,8 +48,14 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             message = hostCommunicator.constructMessage(message);
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
-        sendDataByIframeBridge: function (message) {
-            window.iframeBridge = hostCommunicator.constructMessage(message);
+        sendScrollToHost: function (scrollPosition, scrollDuration) {
+            var talker_uid = window.location.pathname,
+            message = {
+                scrollPosition: scrollPosition,
+                scrollDuration: scrollDuration,
+                hostPageCallback: false
+            };
+            if (talker_uid.indexOf('index') > -1) window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
         constructMessage: function (additionalMessage) {
             var message = {
@@ -76,17 +82,6 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
             window.addEventListener('message', this.setIFrameIndexFromPost, false);
-        },
-        setupIframeBridge: function () {
-            window.setInterval(this.exchangeDataByIframeBridge, 100);
-            window.istatsQueue = [];
-        },
-        exchangeDataByIframeBridge: function () {
-            if (window.iframeBridge !== false) {
-                hostCommunicator.setIFrameIndex(window.iframeBridge);
-            } else {
-                hostCommunicator.sendDataByIframeBridge();
-            }
         },
         setIFrameIndexFromPost: function (event) {
             hostCommunicator.setIFrameIndex(parser.parseJSON(event));
@@ -115,6 +110,25 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         hostPageCallback: false,
         setHostPageInitialization: function (callback) {
             hostCommunicator.hostPageCallback = callback.toString();
+        },
+        sendMessageToremoveLoadingImage: function () {
+            var message,
+                funcToExecute;
+
+            funcToExecute = function () {
+                var iframeDivContainer = document.getElementById('bbc-news-visual-journalism-loading-spinner');
+                if (iframeDivContainer) {
+                    iframeDivContainer.parentNode.removeChild(iframeDivContainer);
+                }
+            };
+
+            message = {
+                'hostPageCallback' : funcToExecute.toString()
+            };
+
+            if (this.postMessageAvailable) {
+                window.parent.postMessage(window.location.pathname + '::' + JSON.stringify(message), '*');
+            }
         }
     };
     return hostCommunicator;

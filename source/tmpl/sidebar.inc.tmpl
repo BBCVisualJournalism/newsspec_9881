@@ -8,17 +8,15 @@
 </script>
 <style>
 .fixedFrame {
-    position: fixed;
-    top: 1em;
-    right: 1em;
-    width: 17%;
+    display: none;
 }
-@media only screen and (max-width: 800px) {
+@media only screen and (min-width: 601px) {
     .fixedFrame {
-        position: static;
-        width: 100%;
-        top: auto;
-        right: auto;
+        position: fixed;
+        top: 1em;
+        right: 1em;
+        width: 17%;
+        display: block;
     }
 }
 </style>
