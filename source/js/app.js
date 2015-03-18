@@ -14,17 +14,16 @@ define([
 
     count = 0;
 
-    init = function() {
-        if (this.whichIFrame() === 'main') {
-            this.mainSequence();
+    character = '';
+
+    init = function(iframe) {
+        if (iframe === 'main') {
+            setTimeout(function(){
+                this.mainSequence();
+            }, 500);
         } else {
             this.sidebarSequence();
         }
-    };
-
-    whichIFrame = function() {
-        isIFrame = news.$('.main').hasClass('second') ? 'sidebar' : 'main';
-        return isIFrame;
     };
 
     mainSequence = function() {
@@ -42,14 +41,7 @@ define([
         });
 
         this.createEventListenersMain();
-
-        first = this.createFirstSlide();
-        rest = this.createSlide(0);
-
-        slide = first + rest;
-
-        news.$('.slides').append(slide);
-        news.pubsub.emit('slide:created', [{ 'fade' : false, 'count' : that.count }]);
+        this.createFirstSlide();
     };
 
     sidebarSequence = function() {
@@ -57,6 +49,21 @@ define([
     };
 
     createFirstSlide = function() {
+        var that = this,
+            slide,
+            first,
+            rest;
+
+        first = this.createFirstSlideTitle();
+        rest = this.createSlide(0);
+
+        slide = first + rest;
+
+        news.$('.slides').append(slide);
+        news.pubsub.emit('slide:created', [{ 'fade' : false, 'count' : that.count, 'step' : 0 }]);
+    };
+
+    createFirstSlideTitle = function() {
         var title = '<h2>' + slides['main-title'] + '</h2>';
 
         return title;
@@ -84,10 +91,6 @@ define([
         return html;
     };
 
-    preCreateSlide = function() {
-
-    };
-
     createOptions = function(optionsNode) {
         var options = '<div>';
 
@@ -105,36 +108,20 @@ define([
         return options;
     };
 
-    bindOptions = function(optionsNode) {
+    bindOptions = function() {
         var that = this;
 
-        news.$('.slides').find('.option').unbind().bind('click', function() {
+        news.$('.slides').find('.option').bind('click', function() {
             var slide = news.$(this).closest('.option-wrapper').attr('data-slide-number'),
                 slideHtml = that.createSlide(slide);
 
-            news.pubsub.emit('slide:prepare', [{ 'scroll' : true }]);
+            news.pubsub.emit('slide:prepare', [{ 'scroll' : true, 'slide' : slideHtml }]);
             news.$('.coming-soon').replaceWith(slideHtml);
 
             news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count }]);
-        })
+        });
 
         news.pubsub.emit('options:binded', []);
-    };
-
-    updateNavigator = function(count) {
-        news.$('.sidebar').find('circle.step-' + count).attr('class', 'on step-' + count);
-        news.$('.sidebar').find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
-        news.$('.sidebar').find('path.step-' + count).not('.trail').attr('class', 'anim step-' + count);
-
-        news.$('.sidebar').find('li.step-' + count).attr('class', 'on step-' + count);
-    };
-
-    updateNavigatorNext = function(count) {
-        news.$('.sidebar').find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
-        news.$('.sidebar').find('path.trail.step-' + (count + 1)).attr('class', 'trail next step-' + (count + 1));
-        news.$('.sidebar').find('path.step-' + (count + 1)).not('.trail').attr('class', 'next step-' + (count + 1));
-
-        news.$('.sidebar').find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
     };
 
     heightPair = function(isNew) {
@@ -164,32 +151,39 @@ define([
         news.pubsub.emit('height:paired', []);
     };
 
-    sidebarEnlarge = function() {
-        news.$('.sidebar').height(news.$('.sidebar').height() + 62);
-    };
-
-    scrollToSlide = function() {
+    scrollToSlide = function(slide) {
         var offset = news.$('.coming-soon').offset().top;
-        news.pubsub.emit('window:scrollTo', [offset, 400]);
+        news.pubsub.emit('window:scrollTo', [offset, 350, slide]);
     };
 
     createEventListenersMain = function() {
         var that = this;
 
-        news.pubsub.on('slide:prepare', function (obj) {
-            var scroll = obj.scroll;
+        console.log('main listeners');
 
-            if (scroll) that.scrollToSlide();
+        news.pubsub.on('slide:prepare', function (obj) {
+            var scroll = obj.scroll,
+                slide = obj.slide;
+
+            if (scroll) that.scrollToSlide(slide);
         });
 
-        news.pubsub.on('slide:created', function () {
-            console.log('main iframe');
+        news.pubsub.on('navigator:updated', function (obj) {
+            console.log('navigator:updated from main iframe ', obj);
             that.bindOptions();
         });
 
-        news.pubsub.on('options:binded', function () {
+        news.pubsub.on('slide:created', function () {
             console.log('options binded');
             that.heightPair('new');
+        });
+
+        news.pubsub.on('scroll:end', function (slide) {
+            console.log(slide);
+            /*news.$('.slide.new').css({visibility:'visible', display:'none'});
+            news.$('.slide.new').fadeIn('slow', function() {
+                news.$('.slide.new').removeClass('new');
+            });*/
         });
 
         news.pubsub.on('height:paired', function () {
@@ -202,7 +196,7 @@ define([
                     news.$('.slide.new').fadeIn('slow', function() {
                         news.$('.slide.new').removeClass('new');
                     });
-                }, 650);
+                }, 300);
             } else {
                 news.$('.slide.new').show().removeClass('new');
             }
@@ -219,6 +213,7 @@ define([
     createEventListenersSidebar = function() {
         var that = this;
 
+        console.log('sidebar listeners');
         news.pubsub.on('slide:created', function (obj) {
             var count = obj.count;
 
@@ -229,7 +224,32 @@ define([
 
         news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
             that.updateNavigatorNext(that.count);
+            news.pubsub.emit('navigator:updated', [{ 'fade' : true, 'count' : that.count}]);
     	});
+    };
+
+    updateNavigator = function(count) {
+        var $sidebar = news.$('.sidebar');
+
+        $sidebar.find('circle.step-' + count).attr('class', 'on step-' + count);
+        $sidebar.find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+        $sidebar.find('path.step-' + count).not('.trail').attr('class', 'anim step-' + count);
+
+        $sidebar.find('li.step-' + count).attr('class', 'on step-' + count);
+    };
+
+    updateNavigatorNext = function(count) {
+        var $sidebar = news.$('.sidebar');
+
+        $sidebar.find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+        $sidebar.find('path.trail.step-' + (count + 1)).attr('class', 'trail next step-' + (count + 1));
+        $sidebar.find('path.step-' + (count + 1)).not('.trail').attr('class', 'next step-' + (count + 1));
+
+        $sidebar.find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+    };
+
+    sidebarEnlarge = function() {
+        news.$('.sidebar').height(news.$('.sidebar').height() + 62);
     };
 
     return {
@@ -237,10 +257,9 @@ define([
         init: init,
         mainSequence: mainSequence,
         sidebarSequence: sidebarSequence,
-        whichIFrame: whichIFrame,
         createFirstSlide: createFirstSlide,
+        createFirstSlideTitle: createFirstSlideTitle,
         createSlide: createSlide,
-        preCreateSlide: preCreateSlide,
         createOptions: createOptions,
         bindOptions: bindOptions,
         createEventListenersMain: createEventListenersMain,

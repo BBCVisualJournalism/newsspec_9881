@@ -29,7 +29,7 @@ if (scaffoldLite) {
                     require.config(settings.requireConfig);
                     require([settings.moduleToStartApp], function () {
                         require(['app'], function (app) {
-                            app.init('main');
+                            app.init('sidebar');
                         });
                     });
                 }

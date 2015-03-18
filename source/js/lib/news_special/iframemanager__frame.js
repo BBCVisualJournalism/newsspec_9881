@@ -48,11 +48,12 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             message = hostCommunicator.constructMessage(message);
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
-        sendScrollToHost: function (scrollPosition, scrollDuration) {
+        sendScrollToHost: function (scrollPosition, scrollDuration, slide) {
             var talker_uid = window.location.pathname,
             message = {
                 scrollPosition: scrollPosition,
                 scrollDuration: scrollDuration,
+                slide: slide,
                 hostPageCallback: false
             };
             if (talker_uid.indexOf('index') > -1) window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
@@ -82,6 +83,7 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
             window.addEventListener('message', this.setIFrameIndexFromPost, false);
+            window.addEventListener('message', this.scrollEndFromPost, false);
         },
         setIFrameIndexFromPost: function (event) {
             hostCommunicator.setIFrameIndex(parser.parseJSON(event));
@@ -91,6 +93,14 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
                 hostCommunicator.iFrameIndex = data.details[0];
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
+            }
+        },
+        scrollEndFromPost: function (event) {
+            hostCommunicator.scrollEnd(parser.parseJSON(event));
+        },
+        scrollEnd: function (data) {
+            if (data.announcement === 'scroll_end') {
+                $.emit('scroll:end', [{'slide' : data.slide}]);
             }
         },
         startWatching: function () {

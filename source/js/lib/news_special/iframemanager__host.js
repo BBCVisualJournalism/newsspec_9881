@@ -116,7 +116,7 @@
                     if (this.data.scrollDuration <= 0) {
                         this.scrollToInstant(this.data.scrollPosition);
                     } else {
-                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
+                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration, this.data.slide);
                     }
                 }
             }
@@ -268,7 +268,7 @@
             var scrollPosition = this.elm.getBoundingClientRect().top + this.getScrollY() + iframeScrollPosition;
             window.scrollTo(0, scrollPosition);
         },
-        scrollToAnimated: function (iframeScrollPosition, scrollDuration) {
+        scrollToAnimated: function (iframeScrollPosition, scrollDuration, slide) {
             var self = this;
 
             var scrollY = this.getScrollY(),
@@ -285,10 +285,18 @@
                 if (scrollY <= scrollPosition && !timeout) {
                     window.scrollBy(0, scrollStep);
                 } else {
-                    console.log('end');
+                    self.sendScrollEndEventToIframe(null, slide);
                     clearInterval(scrollInterval);
                 }
             }, 15);
+        },
+        sendScrollEndEventToIframe: function (uid, slide) {
+            var iframeContainer = document.getElementById('iframe_newsspec_9881'),
+                message = {
+                    announcement: 'scroll_end',
+                    slide: slide
+                };
+            iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
         sendScrollEventToIframe: function (uid) {
             var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,

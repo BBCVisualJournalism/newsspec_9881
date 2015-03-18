@@ -7,6 +7,6 @@
   "imageWidths":    ["320", "640", "730"],
   "services": {
     "default": "english",
-    "others":  ["English Reference"]
+    "others":  ["English Reference", "arabic", "turkish", "persian", "russian", "mundo"]
   }
 }

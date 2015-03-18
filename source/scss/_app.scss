@@ -7,6 +7,9 @@
         width: 80%;
         float: left;
         .slide {
+            img {
+                width: 100%;
+            }
             &.new {
                 visibility: hidden;
             }
@@ -31,13 +34,22 @@
             float: left;
             margin-left: 30px;
             .option {
-                background: #007f7f;
+                background: #7a7a7a;
                 padding: 21px;
                 text-align: center;
                 color: #fff;
-                cursor: pointer;
                 font-weight: bold;
                 font-size: 20px;
+                &.loaded {
+                    cursor: pointer;
+                    background: #404040;
+                    &:hover {
+                        background: #007f7f;
+                    }
+                }
+                .selected {
+                    background: #007f7f;
+                }
             }
             .description {
                 color: #404040;
@@ -149,8 +161,8 @@
                 stroke:#007F7F;
                 stroke-dasharray: 65;
                 stroke-dashoffset: 65;
-                animation: dash 2s linear alternate 1;
-                -webkit-animation: dash 2s linear alternate 1;
+                animation: dash 1s linear alternate 1;
+                -webkit-animation: dash 1s linear alternate 1;
                 -webkit-animation-fill-mode: forwards;
             }
         }
