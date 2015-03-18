@@ -56,9 +56,9 @@
     }
     .sidebar {
         display: block;
-        width: 142px;
+        width: 148px;
         border: 2px solid #ddd;
-        position: absolute;
+        position: relative;
         right: 0;
         overflow: hidden;
         height: 165px;
@@ -176,6 +176,8 @@
 
 .main.second {
     overflow: visible;
+    /*padding: 1px 4px 1px;*/
+    padding: 0;
 }
 
 /*

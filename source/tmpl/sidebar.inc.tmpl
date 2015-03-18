@@ -7,20 +7,21 @@
     }
 </script>
 <style>
-.fixedFrame {
+#fixedFrame {
     display: none;
 }
 @media only screen and (min-width: 601px) {
-    .fixedFrame {
+    #fixedFrame {
         position: fixed;
         top: 1em;
         right: 1em;
-        width: 17%;
+        width: 148px;
         display: block;
+        padding-top: 25px;
     }
 }
 </style>
-<div class="fixedFrame">
+<div id="fixedFrame">
     <a href="<%= path %>/<%= vocab_dir %>/sidebar.html?v=<%= version %>" id="<%= iframeUid %>" data-static-iframe-height="600">iFrame</a>
 </div>
 <script type="text/javascript"><%= include("../js/lib/news_special/iframemanager__host.js", {iframeUid: iframeUid}) %></script>

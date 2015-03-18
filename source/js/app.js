@@ -15,9 +15,7 @@ define([
     count = 0;
 
     init = function() {
-        var whichIFrame = this.whichIFrame();
-
-        if (whichIFrame !== 'sidebar') {
+        if (this.whichIFrame() === 'main') {
             this.mainSequence();
         } else {
             this.sidebarSequence();
@@ -26,7 +24,6 @@ define([
 
     whichIFrame = function() {
         isIFrame = news.$('.main').hasClass('second') ? 'sidebar' : 'main';
-
         return isIFrame;
     };
 
@@ -47,7 +44,7 @@ define([
         this.createEventListenersMain();
 
         first = this.createFirstSlide();
-        rest = this.createSlide(1);
+        rest = this.createSlide(0);
 
         slide = first + rest;
 
@@ -75,7 +72,7 @@ define([
             html = '<div class="slide new">';
 
         if (title !== '') html +=  '<h2>' + title + '</h2>';
-        if (image !== '') html += '<img src="' + image + '" />';        
+        if (image !== '') html += '<img src="' + image + '" />';
         if (content !== '') html += '<p>' + content + '</p>';
         if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
         if (options !== '') html += options + '<hr>';
@@ -111,14 +108,17 @@ define([
     bindOptions = function(optionsNode) {
         var that = this;
 
-        news.$('.slides').find('.option').bind('click', function() {
+        news.$('.slides').find('.option').unbind().bind('click', function() {
             var slide = news.$(this).closest('.option-wrapper').attr('data-slide-number'),
                 slideHtml = that.createSlide(slide);
 
             news.pubsub.emit('slide:prepare', [{ 'scroll' : true }]);
             news.$('.coming-soon').replaceWith(slideHtml);
+
             news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count }]);
         })
+
+        news.pubsub.emit('options:binded', []);
     };
 
     updateNavigator = function(count) {
@@ -137,9 +137,18 @@ define([
         news.$('.sidebar').find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
     };
 
-    heightPair = function() {
-        var $slide = news.$('.slide.new'),
-            $descriptions = $slide.find('.description');
+    heightPair = function(isNew) {
+        var $slides = news.$('.slides'),
+            $slide,
+            $descriptions;
+
+        if (isNew === 'new') {
+            $slide = news.$('.slide.new');
+        } else {
+            $slide = news.$('.slide');
+        }
+
+        $descriptions = $slide.find('.description');
 
         $descriptions.each(function () {
             var $currentItem = news.$(this),
@@ -152,7 +161,7 @@ define([
             }
         });
 
-        news.$('.slide.new').css({visibility:'visible', display:'none'})
+        news.pubsub.emit('height:paired', []);
     };
 
     sidebarEnlarge = function() {
@@ -173,23 +182,38 @@ define([
             if (scroll) that.scrollToSlide();
         });
 
-        news.pubsub.on('slide:created', function (obj) {
-            console.log('ok this is original', obj);
-            var fade = obj.fade;
-
+        news.pubsub.on('slide:created', function () {
+            console.log('main iframe');
             that.bindOptions();
-            that.heightPair();
+        });
 
+        news.pubsub.on('options:binded', function () {
+            console.log('options binded');
+            that.heightPair('new');
+        });
+
+        news.pubsub.on('height:paired', function () {
+            console.log('height paired');
+            news.$('.slide.new').css({visibility:'visible', display:'none'});
+
+            var fade = true;
             if (fade) {
                 setTimeout(function(){
                     news.$('.slide.new').fadeIn('slow', function() {
                         news.$('.slide.new').removeClass('new');
                     });
-                }, 350);
+                }, 650);
             } else {
                 news.$('.slide.new').show().removeClass('new');
             }
         });
+
+        /*$(window).resize(function() {
+            setTimeout(function(){
+                console.log('resize');
+                that.heightPair();
+            }, 10000);
+        });*/
     };
 
     createEventListenersSidebar = function() {
@@ -198,7 +222,6 @@ define([
         news.pubsub.on('slide:created', function (obj) {
             var count = obj.count;
 
-            console.log('ok this is weird', obj);
             that.count = count;
             that.updateNavigator(count);
             that.sidebarEnlarge();

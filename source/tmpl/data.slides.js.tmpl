@@ -2,7 +2,7 @@ define([], function () {
 
     return {
         "main-title" : "<%= main_title %>",
-        <% for (var a = 1; a < 43; a++) { %>
+        <% for (var a = 0; a < 43; a++) { %>
                 "slide-<%= a %>" : {
                     "content" : "<%= obj['slide_' + a] %>",
                     "image" : "<%= pathStatic %>/<%= vocab_dir %>/img/730/<%= obj['slide_' + a + '_image'] %>",

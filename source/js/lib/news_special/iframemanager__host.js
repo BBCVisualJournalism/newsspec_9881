@@ -164,6 +164,25 @@
         setDimensions: function () {
             this.elm.width  = this.elm.parentNode.clientWidth;
             this.elm.height = this.getIframeContentHeight();
+
+            var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
+                mainFrameContainer = document.getElementById('iframe_newsspec_9881'),
+                sidebarFrameContainer = document.getElementById('fixedFrame'),
+                bodyRect        = document.body.getBoundingClientRect(),
+                elemRect        = mainFrameContainer.getBoundingClientRect(),
+                iFrameOffset    = elemRect.top - bodyRect.top,
+                position        = '',
+                delta;
+
+            if (parentScrollTop < iFrameOffset) {
+                delta = iFrameOffset;
+                position = 'absolute';
+            } else {
+                delta = 0;
+                position = 'fixed';
+            }
+            sidebarFrameContainer.style.top = delta + 'px';
+            sidebarFrameContainer.style.position = position;
         },
         getAnyInstructionsFromIframe: function () {
             if (
@@ -266,6 +285,7 @@
                 if (scrollY <= scrollPosition && !timeout) {
                     window.scrollBy(0, scrollStep);
                 } else {
+                    console.log('end');
                     clearInterval(scrollInterval);
                 }
             }, 15);
