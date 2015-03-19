@@ -40,12 +40,19 @@ define([
             template:     'dropdown' // 'default' or 'dropdown'
         });
 
+        this.emitIframeWidth();
         this.createEventListenersMain();
         this.createFirstSlide();
     };
 
     sidebarSequence = function() {
         this.createEventListenersSidebar();
+    };
+
+    emitIframeWidth = function() {
+        var width = news.$('.main').width();
+
+        news.pubsub.emit('position:sidebar', [{'width' : width}]);
     };
 
     createFirstSlide = function() {
@@ -59,8 +66,9 @@ define([
 
         slide = first + rest;
 
-        news.$('.slides').append(slide);
-        news.pubsub.emit('slide:created', [{ 'fade' : false, 'count' : that.count, 'step' : 0 }]);
+        news.$('.intro').append(slide);
+        news.pubsub.emit('slide:created', [{ 'count' : that.count, 'step' : 0 }]);
+        news.pubsub.emit('scroll:end', []);
     };
 
     createFirstSlideTitle = function() {
@@ -84,9 +92,27 @@ define([
         if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
         if (options !== '') html += options + '<hr>';
 
-        html += '</div><div class="coming-soon"></div>';
+        html += '</div>';
 
-        this.count++;
+        return html;
+    };
+
+    transitionSlide = function() {
+        var that = this;
+
+        that.heightPair('new');
+        news.$('.slide.new').css({visibility:'visible', display:'none'});
+
+        that.bindOptions();
+
+        news.$('.slide.new').fadeIn('slow', function() {
+            news.$('.slide.new').removeClass('new').addClass('current');
+            news.$('.slide.current').find('.option').addClass('loaded');
+        });
+    };
+
+    createSlidePlaceholder = function() {
+        var html = '<div class="coming-soon"></div>';
 
         return html;
     };
@@ -111,17 +137,27 @@ define([
     bindOptions = function() {
         var that = this;
 
-        news.$('.slides').find('.option').bind('click', function() {
-            var slide = news.$(this).closest('.option-wrapper').attr('data-slide-number'),
-                slideHtml = that.createSlide(slide);
+        news.$('.slide.new').find('.option').bind('click', function() {
+            var $slide = news.$(this).closest('.slide'),
+                $optionWrapper = news.$(this).closest('.option-wrapper'),
+                slide = $optionWrapper.attr('data-slide-number'),
+                slideHtml = that.createSlide(slide) + that.createSlidePlaceholder();
+
+            $slide.find('.option').unbind().removeClass('loaded');
+            $optionWrapper.find('.option').addClass('selected');
+            news.$('.slide.current').removeClass('current').addClass('previous');
 
             news.pubsub.emit('slide:prepare', [{ 'scroll' : true, 'slide' : slideHtml }]);
             news.$('.coming-soon').replaceWith(slideHtml);
-
+            that.count++;
             news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count }]);
         });
 
         news.pubsub.emit('options:binded', []);
+    };
+
+    toggleButtonStates = function() {
+
     };
 
     heightPair = function(isNew) {
@@ -130,9 +166,9 @@ define([
             $descriptions;
 
         if (isNew === 'new') {
-            $slide = news.$('.slide.new');
+            $slide = $slides.find('.slide.new');
         } else {
-            $slide = news.$('.slide');
+            $slide = $slides.find('.slide');
         }
 
         $descriptions = $slide.find('.description');
@@ -147,19 +183,15 @@ define([
                 $previousItem.height($currentItem.height());
             }
         });
-
-        news.pubsub.emit('height:paired', []);
     };
 
     scrollToSlide = function(slide) {
         var offset = news.$('.coming-soon').offset().top;
-        news.pubsub.emit('window:scrollTo', [offset, 350, slide]);
+        news.pubsub.emit('window:scrollTo', [offset, 700, slide]);
     };
 
     createEventListenersMain = function() {
         var that = this;
-
-        console.log('main listeners');
 
         news.pubsub.on('slide:prepare', function (obj) {
             var scroll = obj.scroll,
@@ -168,38 +200,9 @@ define([
             if (scroll) that.scrollToSlide(slide);
         });
 
-        news.pubsub.on('navigator:updated', function (obj) {
-            console.log('navigator:updated from main iframe ', obj);
-            that.bindOptions();
-        });
-
-        news.pubsub.on('slide:created', function () {
-            console.log('options binded');
-            that.heightPair('new');
-        });
-
         news.pubsub.on('scroll:end', function (slide) {
-            console.log(slide);
-            /*news.$('.slide.new').css({visibility:'visible', display:'none'});
-            news.$('.slide.new').fadeIn('slow', function() {
-                news.$('.slide.new').removeClass('new');
-            });*/
-        });
-
-        news.pubsub.on('height:paired', function () {
-            console.log('height paired');
-            news.$('.slide.new').css({visibility:'visible', display:'none'});
-
-            var fade = true;
-            if (fade) {
-                setTimeout(function(){
-                    news.$('.slide.new').fadeIn('slow', function() {
-                        news.$('.slide.new').removeClass('new');
-                    });
-                }, 300);
-            } else {
-                news.$('.slide.new').show().removeClass('new');
-            }
+            that.emitIframeWidth();
+            that.transitionSlide(slide);
         });
 
         /*$(window).resize(function() {
@@ -213,13 +216,18 @@ define([
     createEventListenersSidebar = function() {
         var that = this;
 
-        console.log('sidebar listeners');
         news.pubsub.on('slide:created', function (obj) {
             var count = obj.count;
 
             that.count = count;
             that.updateNavigator(count);
             that.sidebarEnlarge();
+        });
+
+        news.pubsub.on('iframe:loaded', function (obj) {
+            var width = obj.width;
+
+            that.sidebarMargin(width);
         });
 
         news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
@@ -252,21 +260,30 @@ define([
         news.$('.sidebar').height(news.$('.sidebar').height() + 62);
     };
 
+    sidebarMargin = function(width) {
+
+    };
+
     return {
         count: count,
         init: init,
+        emitIframeWidth: emitIframeWidth,
         mainSequence: mainSequence,
         sidebarSequence: sidebarSequence,
         createFirstSlide: createFirstSlide,
         createFirstSlideTitle: createFirstSlideTitle,
         createSlide: createSlide,
+        transitionSlide: transitionSlide,
+        createSlidePlaceholder: createSlidePlaceholder,
         createOptions: createOptions,
         bindOptions: bindOptions,
+        toggleButtonStates: toggleButtonStates,
         createEventListenersMain: createEventListenersMain,
         createEventListenersSidebar: createEventListenersSidebar,
         updateNavigator: updateNavigator,
         updateNavigatorNext: updateNavigatorNext,
         heightPair: heightPair,
+        sidebarMargin: sidebarMargin,
         sidebarEnlarge: sidebarEnlarge,
         scrollToSlide: scrollToSlide
     }

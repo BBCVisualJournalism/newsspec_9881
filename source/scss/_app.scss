@@ -2,9 +2,10 @@
 .main {
     max-width: 974px;
     position: relative;
-    .slides {
+    .slides,
+    .intro {
         margin-left: 31px;
-        width: 80%;
+        width: 82%;
         float: left;
         .slide {
             img {
@@ -47,7 +48,7 @@
                         background: #007f7f;
                     }
                 }
-                .selected {
+                &.selected {
                     background: #007f7f;
                 }
             }
@@ -66,6 +67,11 @@
             height: 10px;
         }
     }
+    .intro {
+        width: 93%;
+        max-width: 974px;
+        padding-right: 31px;
+    }
     .sidebar {
         display: block;
         width: 148px;
@@ -73,7 +79,7 @@
         position: relative;
         right: 0;
         overflow: hidden;
-        height: 165px;
+        height: 227px;
         .overlay {
             display: block;
             position: absolute;
@@ -211,7 +217,7 @@
 @include respondMinMax (400px, false) {
     .main {
         .slides {
-            width:83%;
+            width:87%;
             .option-wrapper {
                 width: 45.5%;
             }
@@ -220,9 +226,9 @@
 }
 @include respondMinMax (600px, false) {
     .main {
-        .slides {
+        .slides,
+        .intro {
             margin-left: 41px;
-            width:67%;
             h2 {
                 padding-bottom: 17px;
                 font-size: 24px;
@@ -234,6 +240,9 @@
             p {
                 font-size: 18px;
             }
+        }
+        .slides {
+            width:70%;
             .option-wrapper {
                 width: 45%;
             }

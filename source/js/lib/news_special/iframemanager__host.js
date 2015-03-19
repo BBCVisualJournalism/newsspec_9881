@@ -119,6 +119,10 @@
                         this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration, this.data.slide);
                     }
                 }
+                if (this.sidebarPositionInTheData()) {
+                    console.log('theres data');
+                    this.repositionSidebar(null, this.data.sidebarPosition);
+                }
             }
         },
         postBackMessageForThisIframe: function (data) {
@@ -129,6 +133,9 @@
         },
         scrollInTheData: function () {
             return (typeof(this.data.scrollPosition) !== 'undefined');
+        },
+        sidebarPositionInTheData: function () {
+            return (typeof(this.data.sidebarPosition) !== 'undefined');
         },
         istatsInTheData: function () {
             return this.data.istats && this.data.istats.actionType;
@@ -286,6 +293,7 @@
                     window.scrollBy(0, scrollStep);
                 } else {
                     self.sendScrollEndEventToIframe(null, slide);
+                    self.showSidebar();
                     clearInterval(scrollInterval);
                 }
             }, 15);
@@ -297,6 +305,11 @@
                     slide: slide
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
+        },
+        showSidebar: function () {
+            var sidebarContainer = document.getElementById('fixedFrame');
+
+            sidebarContainer.className += " show";
         },
         sendScrollEventToIframe: function (uid) {
             var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
@@ -311,8 +324,15 @@
                     viewportHeight:  Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
-        }
+        },
+        repositionSidebar: function (uid, width) {
 
+            var sidebarContainer = document.getElementById('fixedFrame'),
+                sidebarRect      = sidebarContainer.getBoundingClientRect(),
+                leftMargin       = (width - sidebarRect.width);
+                console.log('reposition', width, sidebarRect.width, leftMargin, sidebarContainer);
+                sidebarRect.right = leftMargin + 'px';
+        }
     };
 
     var iframe = new IframeWatcher('<%= iframeUid %>');
