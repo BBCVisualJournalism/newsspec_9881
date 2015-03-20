@@ -40,7 +40,6 @@ define([
             template:     'dropdown' // 'default' or 'dropdown'
         });
 
-        this.emitIframeWidth();
         this.createEventListenersMain();
         this.createFirstSlide();
     };
@@ -49,10 +48,12 @@ define([
         this.createEventListenersSidebar();
     };
 
-    emitIframeWidth = function() {
-        var width = news.$('.main').width();
+    emitIframeProps = function() {
+        var width = news.$('.main').width(),
+            introHeight = news.$('.intro').outerHeight(),
+            introH2 = news.$('.intro').find('h2').outerHeight();
 
-        news.pubsub.emit('position:sidebar', [{'width' : width}]);
+        news.pubsub.emit('position:sidebar', [{'width' : width, 'introHeight' : introHeight + introH2 + 25}]);
     };
 
     createFirstSlide = function() {
@@ -121,7 +122,17 @@ define([
         var options = '<div>';
 
         for (var i in optionsNode) {
-            options += '<div class="option-wrapper" data-slide-number="' + optionsNode[i].number + '">';
+            options += '<div class="option-wrapper" ';
+
+            if (this.optionPostFilter(optionsNode[i].number)[0]) {
+                //console.log('array', this.optionPostFilter(optionsNode[i].number)[0]);
+                options += 'data-slide-number="' + this.optionPostFilter(optionsNode[i].number)[0] + '"';
+                options += 'data-slide-second-option="' + this.optionPostFilter(optionsNode[i].number)[1] + '"';
+            } else {
+                //console.log('nonarray', optionsNode[i].number);
+                options += 'data-slide-number="' + optionsNode[i].number + '"';
+            }
+            options += '>';
             if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
             options += '<div class="option">' + optionsNode[i].label + '</div>';
             options += '</div>';
@@ -141,7 +152,13 @@ define([
             var $slide = news.$(this).closest('.slide'),
                 $optionWrapper = news.$(this).closest('.option-wrapper'),
                 slide = $optionWrapper.attr('data-slide-number'),
+                secondOption = $optionWrapper.attr('data-slide-second-option'),
                 slideHtml = that.createSlide(slide) + that.createSlidePlaceholder();
+
+            if (secondOption) {
+                console.log('second option', secondOption);
+                that.setCharacter(secondOption);
+            }
 
             $slide.find('.option').unbind().removeClass('loaded');
             $optionWrapper.find('.option').addClass('selected');
@@ -156,8 +173,16 @@ define([
         news.pubsub.emit('options:binded', []);
     };
 
-    toggleButtonStates = function() {
+    optionPostFilter = function(number) {
+        if (number.indexOf('#') > -1) {
+            return number.split("#");
+        } else {
+            return false;
+        }
+    };
 
+    setCharacter = function(character) {
+        this.character = character;
     };
 
     heightPair = function(isNew) {
@@ -172,7 +197,7 @@ define([
         }
 
         $descriptions = $slide.find('.description');
-
+        $descriptions.removeAttr('style');
         $descriptions.each(function () {
             var $currentItem = news.$(this),
                 $previousItem = news.$(this).closest('.option-wrapper').prev().find('.description');
@@ -185,9 +210,10 @@ define([
         });
     };
 
-    scrollToSlide = function(slide) {
+    scrollToSlide = function() {
         var offset = news.$('.coming-soon').offset().top;
-        news.pubsub.emit('window:scrollTo', [offset, 700, slide]);
+
+        news.pubsub.emit('window:scrollTo', [offset, 700]);
     };
 
     createEventListenersMain = function() {
@@ -200,11 +226,15 @@ define([
             if (scroll) that.scrollToSlide(slide);
         });
 
-        news.pubsub.on('scroll:end', function (slide) {
-            that.emitIframeWidth();
-            that.transitionSlide(slide);
+        news.pubsub.on('scroll:end', function () {
+            that.emitIframeProps();
+            that.transitionSlide();
         });
 
+        news.$(window).delayedResize(function () {
+            that.heightPair();
+            that.emitIframeProps();
+        });
         /*$(window).resize(function() {
             setTimeout(function(){
                 console.log('resize');
@@ -260,14 +290,11 @@ define([
         news.$('.sidebar').height(news.$('.sidebar').height() + 62);
     };
 
-    sidebarMargin = function(width) {
-
-    };
-
     return {
         count: count,
         init: init,
-        emitIframeWidth: emitIframeWidth,
+        emitIframeProps: emitIframeProps,
+        setCharacter: setCharacter,
         mainSequence: mainSequence,
         sidebarSequence: sidebarSequence,
         createFirstSlide: createFirstSlide,
@@ -277,13 +304,11 @@ define([
         createSlidePlaceholder: createSlidePlaceholder,
         createOptions: createOptions,
         bindOptions: bindOptions,
-        toggleButtonStates: toggleButtonStates,
         createEventListenersMain: createEventListenersMain,
         createEventListenersSidebar: createEventListenersSidebar,
         updateNavigator: updateNavigator,
         updateNavigatorNext: updateNavigatorNext,
         heightPair: heightPair,
-        sidebarMargin: sidebarMargin,
         sidebarEnlarge: sidebarEnlarge,
         scrollToSlide: scrollToSlide
     }

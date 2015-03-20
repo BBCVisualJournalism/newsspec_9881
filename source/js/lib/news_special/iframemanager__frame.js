@@ -50,12 +50,12 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             message = hostCommunicator.constructMessage(message);
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
-        sendScrollToHost: function (scrollPosition, scrollDuration, slide) {
+        sendScrollToHost: function (scrollPosition, scrollDuration, offset) {
             var talker_uid = window.location.pathname,
             message = {
                 scrollPosition: scrollPosition,
                 scrollDuration: scrollDuration,
-                slide: slide,
+                offset: offset,
                 hostPageCallback: false
             };
             if (talker_uid.indexOf('index') > -1) window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
@@ -63,8 +63,10 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         sendPositionSidebarToHost: function (obj) {
             var talker_uid = window.location.pathname,
                 width = obj.width,
+                introHeight = obj.introHeight,
                 message = {
                     sidebarPosition: width,
+                    introHeight: introHeight,
                     hostPageCallback: false
                 };
             if (talker_uid.indexOf('index') > -1) window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
@@ -111,7 +113,7 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         },
         scrollEnd: function (data) {
             if (data.announcement === 'scroll_end') {
-                $.emit('scroll:end', [{'slide' : data.slide}]);
+                $.emit('scroll:end', []);
             }
         },
         startWatching: function () {

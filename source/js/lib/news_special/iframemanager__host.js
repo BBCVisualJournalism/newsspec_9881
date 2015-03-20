@@ -12,6 +12,7 @@
 
     IframeWatcher.prototype = {
         postMessageAvailable: (window.postMessage ? true : false),
+        sidebarOffset: 0,
         istatsCanBeUsed: function () {
             return ('require' in window) && this.onBbcDomain();
         },
@@ -116,12 +117,11 @@
                     if (this.data.scrollDuration <= 0) {
                         this.scrollToInstant(this.data.scrollPosition);
                     } else {
-                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration, this.data.slide);
+                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
                     }
                 }
                 if (this.sidebarPositionInTheData()) {
-                    console.log('theres data');
-                    this.repositionSidebar(null, this.data.sidebarPosition);
+                    this.repositionSidebar(null, this.data.sidebarPosition, this.data.introHeight);
                 }
             }
         },
@@ -172,24 +172,27 @@
             this.elm.width  = this.elm.parentNode.clientWidth;
             this.elm.height = this.getIframeContentHeight();
 
-            var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
-                mainFrameContainer = document.getElementById('iframe_newsspec_9881'),
-                sidebarFrameContainer = document.getElementById('fixedFrame'),
-                bodyRect        = document.body.getBoundingClientRect(),
-                elemRect        = mainFrameContainer.getBoundingClientRect(),
-                iFrameOffset    = elemRect.top - bodyRect.top,
-                position        = '',
-                delta;
+            if (this.uidForPostMessage.indexOf('index') > -1) {
+                var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
+                    mainFrameContainer = document.getElementById('iframe_newsspec_9881'),
+                    sidebarFrameContainer = document.getElementById('fixedFrame'),
+                    bodyRect        = document.body.getBoundingClientRect(),
+                    elemRect        = mainFrameContainer.getBoundingClientRect(),
+                    iFrameOffset    = elemRect.top - bodyRect.top,
+                    andIntroOffset    = iFrameOffset + this.sidebarOffset,
+                    position        = '',
+                    delta;
 
-            if (parentScrollTop < iFrameOffset) {
-                delta = iFrameOffset;
-                position = 'absolute';
-            } else {
-                delta = 0;
-                position = 'fixed';
+                if (parentScrollTop < andIntroOffset) {
+                    delta = andIntroOffset;
+                    position = 'absolute';
+                } else {
+                    delta = 0;
+                    position = 'fixed';
+                }
+                sidebarFrameContainer.style.top = delta + 'px';
+                sidebarFrameContainer.style.position = position;
             }
-            sidebarFrameContainer.style.top = delta + 'px';
-            sidebarFrameContainer.style.position = position;
         },
         getAnyInstructionsFromIframe: function () {
             if (
@@ -264,9 +267,6 @@
             if (this.postMessageAvailable) {
                 iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
             }
-            else {
-                // communicate through iFrame bridge or cookie fallback
-            }
         },
         getScrollY: function () {
             return window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop || 0;
@@ -275,7 +275,7 @@
             var scrollPosition = this.elm.getBoundingClientRect().top + this.getScrollY() + iframeScrollPosition;
             window.scrollTo(0, scrollPosition);
         },
-        scrollToAnimated: function (iframeScrollPosition, scrollDuration, slide) {
+        scrollToAnimated: function (iframeScrollPosition, scrollDuration) {
             var self = this;
 
             var scrollY = this.getScrollY(),
@@ -292,17 +292,16 @@
                 if (scrollY <= scrollPosition && !timeout) {
                     window.scrollBy(0, scrollStep);
                 } else {
-                    self.sendScrollEndEventToIframe(null, slide);
+                    self.sendScrollEndEventToIframe();
                     self.showSidebar();
                     clearInterval(scrollInterval);
                 }
             }, 15);
         },
-        sendScrollEndEventToIframe: function (uid, slide) {
+        sendScrollEndEventToIframe: function (uid) {
             var iframeContainer = document.getElementById('iframe_newsspec_9881'),
                 message = {
-                    announcement: 'scroll_end',
-                    slide: slide
+                    announcement: 'scroll_end'
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
@@ -325,13 +324,19 @@
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
-        repositionSidebar: function (uid, width) {
-
-            var sidebarContainer = document.getElementById('fixedFrame'),
+        repositionSidebar: function (uid, width, introHeight) {
+            var viewportWidth =  Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+                iframeContainer = document.getElementById('iframe_newsspec_9881'),
+                sidebarContainer = document.getElementById('fixedFrame'),
+                iframeRect      = iframeContainer.getBoundingClientRect(),
                 sidebarRect      = sidebarContainer.getBoundingClientRect(),
-                leftMargin       = (width - sidebarRect.width);
-                console.log('reposition', width, sidebarRect.width, leftMargin, sidebarContainer);
-                sidebarRect.right = leftMargin + 'px';
+                leftMargin       = ((viewportWidth - width) / 2) + 31;
+
+                this.sidebarOffset = introHeight;
+
+                if (leftMargin === 0) leftMargin = 25;
+
+                sidebarContainer.style.right = leftMargin + 'px';
         }
     };
 

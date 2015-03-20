@@ -55,7 +55,7 @@
             .description {
                 color: #404040;
                 background: #e8e8e8;
-                padding: 5px 8px;
+                padding: 10px 13px;
             }
             &:first-child {
                 margin: 0;
@@ -68,7 +68,7 @@
         }
     }
     .intro {
-        width: 93%;
+        width: 95%;
         max-width: 974px;
         padding-right: 31px;
     }
@@ -79,7 +79,7 @@
         position: relative;
         right: 0;
         overflow: hidden;
-        height: 227px;
+        height: 103px;
         .overlay {
             display: block;
             position: absolute;
@@ -222,6 +222,11 @@
                 width: 45.5%;
             }
         }
+        .intro {
+            .option-wrapper {
+                width: 45.5%;
+            }
+        }
     }
 }
 @include respondMinMax (600px, false) {
@@ -242,9 +247,14 @@
             }
         }
         .slides {
-            width:70%;
+            width:64%;
             .option-wrapper {
                 width: 45%;
+            }
+        }
+        .intro {
+            .option-wrapper {
+                width: 47%;
             }
         }
     }
@@ -257,12 +267,16 @@
                 width: 45.5%;
             }
         }
+        .intro {
+            padding-right: 41px;
+            width: 98%;
+        }
     }
 }
 @include respondMinMax (800px, false) {
     .main {
         .slides {
-            width:72%;
+            width:70%;
             .option-wrapper {
                 width: 46%;
             }
@@ -272,9 +286,14 @@
 @include respondMinMax (906px, false) {
     .main {
         .slides {
-            width:75%;
+            width:73%;
             .option-wrapper {
                 width: 47%;
+            }
+        }
+        .intro {
+            .option-wrapper {
+                width: 48%;
             }
         }
     }

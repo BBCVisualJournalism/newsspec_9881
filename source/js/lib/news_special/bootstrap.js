@@ -3,8 +3,9 @@ define([
     'lib/news_special/iframemanager__frame',
     'lib/news_special/imager',
     'lib/news_special/imager_image_sizes',
-    'pubsub'
-], function ($, iframemanager__frame, Imager, imageSizes) {
+    'pubsub',
+    'lib/news_special/delayed_resize'
+], function ($, iframemanager__frame, Imager, imageSizes, delayedResize) {
 
     // responsive iframe
     iframemanager__frame.init();

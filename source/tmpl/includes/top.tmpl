@@ -109,7 +109,7 @@ var translations = {
 		lang: "tg",
 		name: "tajik"
 	},
-	turkce: {
+	turkish: {
 		lang: "tr",
 		name: "turkce"
 	},
@@ -165,10 +165,10 @@ if (!scaffoldLite) {
 			if (urlParam) {
 				var hashtagToIgnore    = urlParam.indexOf('#'),
 					bbcDomainParameter = urlParam.substring(0, hashtagToIgnore !== -1 ? hashtagToIgnore : urlParam.length);
-				
+
 				onBbcDomain = (bbcDomainParameter === 'true');
 			}
-			
+
 			return onBbcDomain;
 		}
 
