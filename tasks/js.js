@@ -35,7 +35,8 @@ module.exports = function (grunt) {
         if (grunt.config.get('config').debug === 'true') {
             grunt.task.run('copy:jsAll');
         } else {
-            grunt.task.run('copy_js_minimum');
+            //grunt.task.run('copy_js_minimum');
+            grunt.task.run('copy:jsAll');            
         }
         grunt.task.run('uglify');
     });

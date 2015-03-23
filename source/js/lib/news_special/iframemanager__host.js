@@ -360,7 +360,7 @@
                 sidebarContainer = document.getElementById('fixedFrame'),
                 iframeRect      = iframeContainer.getBoundingClientRect(),
                 sidebarRect      = sidebarContainer.getBoundingClientRect(),
-                leftMargin       = ((viewportWidth - width) / 2) + 31;
+                leftMargin       = ((viewportWidth - width) / 2) + 32;
 
                 this.sidebarOffset = introHeight;
 

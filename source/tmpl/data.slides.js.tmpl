@@ -18,7 +18,14 @@ define([], function () {
                             "label" : "<%= obj['slide_' + a + '_option_2'] %>",
                             "description" : "<%= obj['slide_' + a + '_option_2_description'] %>",
                             "number" : "<%= obj['slide_' + a + '_option_2_number'] %>"
+                        } <% if (obj['slide_' + a + '_option_3']) { %>,
+                        "c" : {
+                            "label" : "<%= obj['slide_' + a + '_option_3'] %>",
+                            "secondLabel" : "<%= obj['slide_' + a + '_option_3_alternative'] %>",
+                            "description" : "<%= obj['slide_' + a + '_option_3_description'] %>",
+                            "number" : "<%= obj['slide_' + a + '_option_3_number'] %>"
                         }
+                        <%  }; %>
                     }
                 }<% if (a !== 42) { %>,<% } %>
         <%  }; %>

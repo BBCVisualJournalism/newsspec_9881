@@ -16,9 +16,9 @@ define([
 
     character = '';
 
-    init = function(iframe) {
+    init = function (iframe) {
         if (iframe === 'main') {
-            setTimeout(function(){
+            setTimeout(function (){
                 this.mainSequence();
             }, 500);
         } else {
@@ -26,7 +26,7 @@ define([
         }
     };
 
-    mainSequence = function() {
+    mainSequence = function () {
         var that = this,
             slide,
             first,
@@ -44,11 +44,11 @@ define([
         this.createFirstSlide();
     };
 
-    sidebarSequence = function() {
+    sidebarSequence = function () {
         this.createEventListenersSidebar();
     };
 
-    emitIframeProps = function() {
+    emitIframeProps = function () {
         var width = news.$('.main').width(),
             introHeight = news.$('.intro').outerHeight(),
             introH2 = news.$('.intro').find('h2').outerHeight();
@@ -56,7 +56,7 @@ define([
         news.pubsub.emit('position:sidebar', [{'width' : width, 'introHeight' : introHeight + introH2 + 35}]);
     };
 
-    createFirstSlide = function() {
+    createFirstSlide = function () {
         var that = this,
             slide,
             first,
@@ -72,25 +72,31 @@ define([
         news.pubsub.emit('scroll:end', []);
     };
 
-    createFirstSlideTitle = function() {
+    createFirstSlideTitle = function () {
         var title = '<h2>' + slides['main-title'] + '</h2>';
 
         return title;
     };
 
-    createSlide = function(number) {
+    createSlide = function (number) {
         var slide = slides['slide-' + number],
             content = slide['content'],
             image = slide['image'],
             title = slide['title'],
             subtitle = slide['subtitle'],
             options = this.createOptions(slide['options']),
-            html = '<div class="slide new">';
+            html = '<div class="slide new">',
+            endCSSClass = '';
 
         if (title !== '') html +=  '<h2>' + title + '</h2>';
         if (image !== '') html += '<img src="' + image + '" />';
         if (content !== '') html += '<p>' + content + '</p>';
-        if (subtitle !== '') html += '<h3>' + subtitle + '</h3>';
+        if (subtitle !== '') {
+            if (this.isThisTheEnd(slide)) {
+                endCSSClass = ' end';
+            }
+            html += '<h3 class="' + endCSSClass + '">' + subtitle + '</h3>';
+        }
         if (options !== '') html += options + '<hr>';
 
         html += '</div>';
@@ -98,41 +104,36 @@ define([
         return html;
     };
 
-    transitionSlide = function() {
+    transitionSlide = function () {
         var that = this;
 
         that.heightPair('new');
-        //news.$('.slide.new').css({visibility:'visible', display:'none'});
-
         that.bindOptions();
-
-        /*news.$('.slide.new').fadeIn('slow', function() {
-            news.$('.slide.new').removeClass('new').addClass('current');
-            news.$('.slide.current').find('.option').addClass('loaded');
-        });*/
 
         news.$('.slide.new').removeClass('new').addClass('current');
         news.$('.slide.current').find('.option').addClass('loaded');
     };
 
-    createSlidePlaceholder = function() {
+    createSlidePlaceholder = function () {
         var html = '<div class="coming-soon"></div>';
 
         return html;
     };
 
-    createOptions = function(optionsNode) {
-        var options = '<div>';
+    createOptions = function (optionsNode) {
+        var threeOptionsCSSClass = (optionsNode['c']) ? 'three' : '',
+            options = '<div>';
 
         for (var i in optionsNode) {
-            options += '<div class="option-wrapper" ';
+            options += '<div class="option-wrapper ' + threeOptionsCSSClass + '" ';
 
-            if (this.optionPostFilter(optionsNode[i].number)[0]) {
-                //console.log('array', this.optionPostFilter(optionsNode[i].number)[0]);
+            if (this.optionPostFilter(optionsNode[i].number)[1] === 'male' || this.optionPostFilter(optionsNode[i].number)[1] === 'female') {
+                options += 'data-slide-number="' + this.optionPostFilter(optionsNode[i].number)[0] + '"';
+                options += 'data-slide-character-option="' + this.optionPostFilter(optionsNode[i].number)[1] + '"';
+            } else if  (!isNaN(this.optionPostFilter(optionsNode[i].number)[0])) {
                 options += 'data-slide-number="' + this.optionPostFilter(optionsNode[i].number)[0] + '"';
                 options += 'data-slide-second-option="' + this.optionPostFilter(optionsNode[i].number)[1] + '"';
             } else {
-                //console.log('nonarray', optionsNode[i].number);
                 options += 'data-slide-number="' + optionsNode[i].number + '"';
             }
             options += '>';
@@ -148,20 +149,27 @@ define([
         return options;
     };
 
-    bindOptions = function() {
+    bindOptions = function () {
         var that = this;
 
-        news.$('.slide.new').find('.option').bind('click', function() {
+        news.$('.slide.new').find('.option').bind('click', function () {
             var $slide = news.$(this).closest('.slide'),
                 $optionWrapper = news.$(this).closest('.option-wrapper'),
-                slide = $optionWrapper.attr('data-slide-number'),
+                slideNumber = $optionWrapper.attr('data-slide-number'),
+                slide = slides['slide-' + slideNumber],
+                characterOption = $optionWrapper.attr('data-slide-character-option'),
                 secondOption = $optionWrapper.attr('data-slide-second-option'),
-                slideHtml = that.createSlide(slide) + that.createSlidePlaceholder();
+                slideHtml = '';
 
-            if (secondOption) {
-                console.log('second option', secondOption);
-                that.setCharacter(secondOption);
+            if (characterOption) {
+                that.setCharacter(characterOption);
             }
+
+            if (that.character === 'female' && secondOption) {
+                slideNumber = secondOption;
+            }
+
+            slideHtml = that.createSlide(slideNumber) + that.createSlidePlaceholder();
 
             $slide.find('.option').unbind().removeClass('loaded');
             $optionWrapper.find('.option').addClass('selected');
@@ -170,13 +178,13 @@ define([
             news.pubsub.emit('slide:prepare', [{ 'scroll' : true, 'slide' : slideHtml }]);
             news.$('.coming-soon').replaceWith(slideHtml);
             that.count++;
-            news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count }]);
+            news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count, 'slide' : slide }]);
         });
 
         news.pubsub.emit('options:binded', []);
     };
 
-    optionPostFilter = function(number) {
+    optionPostFilter = function (number) {
         if (number.indexOf('#') > -1) {
             return number.split("#");
         } else {
@@ -184,14 +192,21 @@ define([
         }
     };
 
-    setCharacter = function(character) {
+    setCharacter = function (character) {
         this.character = character;
     };
 
-    heightPair = function(isNew) {
+    isThisTheEnd = function (slide) {
+        var number = slide ? slide['options']['a']['number'] : 0;
+
+        return number === '999';
+    };
+
+    heightPair = function (isNew) {
         var $slides = news.$('.slides'),
             $slide,
-            $descriptions;
+            $descriptions,
+            highest = 0;
 
         if (isNew === 'new') {
             $slide = $slides.find('.slide.new');
@@ -199,43 +214,46 @@ define([
             $slide = $slides.find('.slide');
         }
 
-        $descriptions = $slide.find('.description');
-        $descriptions.removeAttr('style');
-        $descriptions.each(function () {
-            var $currentItem = news.$(this),
-                $previousItem = news.$(this).closest('.option-wrapper').prev().find('.description');
+        $slide.each(function() {
+            $descriptions = news.$(this).find('.description');
+            $descriptions.removeAttr('style');
+            $descriptions.each(function () {
+                var $currentItem = news.$(this),
+                    $previousItem = news.$(this).closest('.option-wrapper').prev().find('.description');
 
-            if ($currentItem.height() < $previousItem.height()) {
-                $currentItem.height($previousItem.height());
-            } else {
-                $previousItem.height($currentItem.height());
-            }
+                if ($currentItem.height() < $previousItem.height() && $previousItem.height() > highest) {
+                    highest = $previousItem.height();
+                } else if ($currentItem.height() > $previousItem.height() && $currentItem.height() > highest) {
+                    highest = $currentItem.height();
+                }
+            });
+            $descriptions.height(highest);
         });
     };
 
-    scrollToSlide = function() {
+    scrollToSlide = function () {
         var offset = news.$('.coming-soon').offset().top;
 
         news.pubsub.emit('window:scrollTo', [offset, 550]);
     };
 
-    requestFullScreen = function(element) {
-             // Supports most browsers and their versions.
-             var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
-             if (requestMethod) { // Native full screen.
-                 requestMethod.call(element);
-             } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-                 var wscript = new ActiveXObject("WScript.Shell");
-                 if (wscript !== null) {
-                     wscript.SendKeys("{F11}");
-                 }
+    requestFullScreen = function (element) {
+         // Supports most browsers and their versions.
+         var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
+         if (requestMethod) { // Native full screen.
+             requestMethod.call(element);
+         } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+             var wscript = new ActiveXObject("WScript.Shell");
+             if (wscript !== null) {
+                 wscript.SendKeys("{F11}");
              }
+         }
 
          //var elem = document.body; // Make the body go full screen.
          //requestFullScreen(elem);
     };
 
-    createEventListenersMain = function() {
+    createEventListenersMain = function () {
         var that = this;
 
         news.pubsub.on('slide:prepare', function (obj) {
@@ -243,6 +261,12 @@ define([
                 slide = obj.slide;
 
             if (scroll) that.scrollToSlide(slide);
+        });
+
+        news.pubsub.on('slide:created', function (obj) {
+            var slide = obj.slide;
+
+            if (that.isThisTheEnd(slide)) console.log('the end');
         });
 
         news.pubsub.on('scroll:end', function () {
@@ -254,15 +278,15 @@ define([
             that.heightPair();
             that.emitIframeProps();
         });
-        /*$(window).resize(function() {
-            setTimeout(function(){
+        /*$(window).resize(function () {
+            setTimeout(function (){
                 console.log('resize');
                 that.heightPair();
             }, 10000);
         });*/
     };
 
-    createEventListenersSidebar = function() {
+    createEventListenersSidebar = function () {
         var that = this;
 
         news.pubsub.on('slide:prepare', function (obj) {
@@ -282,13 +306,13 @@ define([
             that.sidebarMargin(width);
         });
 
-        news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function() {
+        news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function () {
             that.updateNavigatorNext(that.count);
             news.pubsub.emit('navigator:updated', [{ 'fade' : true, 'count' : that.count}]);
     	});
     };
 
-    updateNavigator = function(count) {
+    updateNavigator = function (count) {
         var $sidebar = news.$('.sidebar');
 
         $sidebar.find('circle.step-' + count).attr('class', 'on step-' + count);
@@ -298,7 +322,7 @@ define([
         $sidebar.find('li.step-' + count).attr('class', 'on step-' + count);
     };
 
-    updateNavigatorNext = function(count) {
+    updateNavigatorNext = function (count) {
         var $sidebar = news.$('.sidebar');
 
         $sidebar.find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
@@ -308,7 +332,7 @@ define([
         $sidebar.find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
     };
 
-    sidebarEnlarge = function() {
+    sidebarEnlarge = function () {
         news.$('.sidebar').height(news.$('.sidebar').height() + 62);
     };
 
@@ -325,6 +349,7 @@ define([
         transitionSlide: transitionSlide,
         createSlidePlaceholder: createSlidePlaceholder,
         createOptions: createOptions,
+        isThisTheEnd: isThisTheEnd,
         bindOptions: bindOptions,
         createEventListenersMain: createEventListenersMain,
         createEventListenersSidebar: createEventListenersSidebar,
