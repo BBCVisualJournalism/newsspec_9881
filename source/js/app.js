@@ -53,7 +53,7 @@ define([
             introHeight = news.$('.intro').outerHeight(),
             introH2 = news.$('.intro').find('h2').outerHeight();
 
-        news.pubsub.emit('position:sidebar', [{'width' : width, 'introHeight' : introHeight + introH2 + 25}]);
+        news.pubsub.emit('position:sidebar', [{'width' : width, 'introHeight' : introHeight + introH2 + 35}]);
     };
 
     createFirstSlide = function() {
@@ -102,14 +102,17 @@ define([
         var that = this;
 
         that.heightPair('new');
-        news.$('.slide.new').css({visibility:'visible', display:'none'});
+        //news.$('.slide.new').css({visibility:'visible', display:'none'});
 
         that.bindOptions();
 
-        news.$('.slide.new').fadeIn('slow', function() {
+        /*news.$('.slide.new').fadeIn('slow', function() {
             news.$('.slide.new').removeClass('new').addClass('current');
             news.$('.slide.current').find('.option').addClass('loaded');
-        });
+        });*/
+
+        news.$('.slide.new').removeClass('new').addClass('current');
+        news.$('.slide.current').find('.option').addClass('loaded');
     };
 
     createSlidePlaceholder = function() {
@@ -213,7 +216,23 @@ define([
     scrollToSlide = function() {
         var offset = news.$('.coming-soon').offset().top;
 
-        news.pubsub.emit('window:scrollTo', [offset, 700]);
+        news.pubsub.emit('window:scrollTo', [offset, 550]);
+    };
+
+    requestFullScreen = function(element) {
+             // Supports most browsers and their versions.
+             var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
+             if (requestMethod) { // Native full screen.
+                 requestMethod.call(element);
+             } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+                 var wscript = new ActiveXObject("WScript.Shell");
+                 if (wscript !== null) {
+                     wscript.SendKeys("{F11}");
+                 }
+             }
+
+         //var elem = document.body; // Make the body go full screen.
+         //requestFullScreen(elem);
     };
 
     createEventListenersMain = function() {
@@ -246,12 +265,15 @@ define([
     createEventListenersSidebar = function() {
         var that = this;
 
+        news.pubsub.on('slide:prepare', function (obj) {
+            that.sidebarEnlarge();
+        });
+
         news.pubsub.on('slide:created', function (obj) {
             var count = obj.count;
 
             that.count = count;
             that.updateNavigator(count);
-            that.sidebarEnlarge();
         });
 
         news.pubsub.on('iframe:loaded', function (obj) {

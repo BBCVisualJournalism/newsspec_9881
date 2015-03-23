@@ -8,11 +8,22 @@
         width: 82%;
         float: left;
         .slide {
+            padding-top: 10px;
             img {
                 width: 100%;
             }
             &.new {
-                visibility: hidden;
+                opacity: 0;
+            }
+            &.current {
+                -webkit-opacity: 1;
+                -moz-opacity: 1;
+                opacity: 1;
+                -webkit-transition: all .7s ease;
+                -moz-transition: all .7s ease;
+                -ms-transition: all .7s ease;
+                -o-transition: all .7s ease;
+                transition: all .7s ease;
             }
         }
         .coming-soon {
@@ -22,6 +33,7 @@
             padding-bottom: 9px;
             border-bottom: 1px solid #ccc;
             font-size: 20px;
+            padding-top: 12px;
         }
         h3 {
             padding-bottom: 0;
@@ -29,6 +41,7 @@
         }
         p {
             font-size: 16px;
+            line-height: 18px;
         }
         .option-wrapper {
             width: 44%;
@@ -79,7 +92,7 @@
         position: relative;
         right: 0;
         overflow: hidden;
-        height: 103px;
+        height: 165px;
         .overlay {
             display: block;
             position: absolute;
@@ -244,6 +257,7 @@
             }
             p {
                 font-size: 18px;
+                line-height: 21px;
             }
         }
         .slides {

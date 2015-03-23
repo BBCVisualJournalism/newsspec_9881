@@ -117,7 +117,8 @@
                     if (this.data.scrollDuration <= 0) {
                         this.scrollToInstant(this.data.scrollPosition);
                     } else {
-                        this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
+                        //this.scrollToAnimated(this.data.scrollPosition, this.data.scrollDuration);
+                        this.scrollToAnimatedWithRAF(this.data.scrollPosition, this.data.scrollDuration);
                     }
                 }
                 if (this.sidebarPositionInTheData()) {
@@ -298,6 +299,35 @@
                 }
             }, 15);
         },
+        scrollToAnimatedWithRAF: function (iframeScrollPosition, scrollDuration) {
+            var self = this;
+
+            var scrollY = this.getScrollY(),
+                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition;
+
+            var scrollStep = (scrollPosition - scrollY) / (scrollDuration / 20);
+
+            var scroll = window.requestAnimationFrame ||
+                         window.webkitRequestAnimationFrame ||
+                         window.mozRequestAnimationFrame ||
+                         window.msRequestAnimationFrame ||
+                         window.oRequestAnimationFrame ||
+                         // IE Fallback, you can even fallback to onscroll
+                         function(callback){ window.setTimeout(callback, 1000/60) };
+
+            var scrollInterval = function () {
+                scrollY = self.getScrollY();
+                if (scrollY <= scrollPosition) {
+                    window.scrollBy(0, scrollStep);
+                    scroll(scrollInterval);
+                } else {
+                    self.sendScrollEndEventToIframe();
+                    self.showSidebar();
+                }
+            };
+
+            scrollInterval();
+        },
         sendScrollEndEventToIframe: function (uid) {
             var iframeContainer = document.getElementById('iframe_newsspec_9881'),
                 message = {
@@ -308,7 +338,7 @@
         showSidebar: function () {
             var sidebarContainer = document.getElementById('fixedFrame');
 
-            sidebarContainer.className += " show";
+            sidebarContainer.className = "show";
         },
         sendScrollEventToIframe: function (uid) {
             var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
