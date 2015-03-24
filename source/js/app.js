@@ -16,6 +16,8 @@ define([
 
     character = '';
 
+    state = '';
+
     init = function (iframe) {
         if (iframe === 'main') {
             setTimeout(function (){
@@ -67,7 +69,7 @@ define([
 
         slide = first + rest;
 
-        news.$('.intro').append(slide);
+        news.$('.intro').html(slide);
         news.pubsub.emit('slide:created', [{ 'count' : that.count, 'step' : 0 }]);
         news.pubsub.emit('scroll:end', []);
     };
@@ -81,21 +83,24 @@ define([
     createSlide = function (number) {
         var slide = slides['slide-' + number],
             content = slide['content'],
-            image = slide['image'],
+            staticPath = slides['static-path'],
+            imageFilename = slide['image'],
+            imgWidth = (number === 0) ? '913' : '730',
+            image = staticPath + '/img/' + imgWidth + '/' + imageFilename,
             title = slide['title'],
             subtitle = slide['subtitle'],
             options = this.createOptions(slide['options']),
             html = '<div class="slide new">',
-            endCSSClass = '';
+            endCSSID = '';
 
         if (title !== '') html +=  '<h2>' + title + '</h2>';
         if (image !== '') html += '<img src="' + image + '" />';
         if (content !== '') html += '<p>' + content + '</p>';
         if (subtitle !== '') {
             if (this.isThisTheEnd(slide)) {
-                endCSSClass = ' end';
+                endCSSID = 'end-try-again';
             }
-            html += '<h3 class="' + endCSSClass + '">' + subtitle + '</h3>';
+            html += '<h3 id="' + endCSSID + '">' + subtitle + '</h3>';
         }
         if (options !== '') html += options + '<hr>';
 
@@ -108,7 +113,7 @@ define([
         var that = this;
 
         that.heightPair('new');
-        that.bindOptions();
+        that.bindOptions('new');
 
         news.$('.slide.new').removeClass('new').addClass('current');
         news.$('.slide.current').find('.option').addClass('loaded');
@@ -149,10 +154,10 @@ define([
         return options;
     };
 
-    bindOptions = function () {
+    bindOptions = function (node) {
         var that = this;
 
-        news.$('.slide.new').find('.option').bind('click', function () {
+        news.$('.slide.' + node).find('.option').bind('click', function () {
             var $slide = news.$(this).closest('.slide'),
                 $optionWrapper = news.$(this).closest('.option-wrapper'),
                 slideNumber = $optionWrapper.attr('data-slide-number'),
@@ -231,6 +236,16 @@ define([
         });
     };
 
+    tryAgainSequence = function () {
+        var that = this;
+
+        news.$('#end-try-again').bind('click', function () {
+            var offset = news.$('.intro').offset().top;
+            that.state = 'end';
+            news.pubsub.emit('window:scrollTo', [offset, 550]);
+        });
+    };
+
     scrollToSlide = function () {
         var offset = news.$('.coming-soon').offset().top;
 
@@ -238,9 +253,9 @@ define([
     };
 
     requestFullScreen = function (element) {
-         // Supports most browsers and their versions.
          var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
-         if (requestMethod) { // Native full screen.
+
+         if (requestMethod) {
              requestMethod.call(element);
          } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
              var wscript = new ActiveXObject("WScript.Shell");
@@ -266,12 +281,24 @@ define([
         news.pubsub.on('slide:created', function (obj) {
             var slide = obj.slide;
 
-            if (that.isThisTheEnd(slide)) console.log('the end');
+            if (that.isThisTheEnd(slide)) that.tryAgainSequence();
         });
 
         news.pubsub.on('scroll:end', function () {
-            that.emitIframeProps();
-            that.transitionSlide();
+            if (that.state === 'end') {
+                that.state = '';
+                news.$('.slides').find('.slide').remove();
+                that.bindOptions('previous');
+                that.count = 0;
+                that.character = '';
+                news.$('.intro').find('.option').removeClass('selected').addClass('loaded');
+                news.$('.intro').removeClass('previous').addClass('current');
+                news.pubsub.emit('sidebar:reset', []);
+            } else {
+                that.state = '';
+                that.emitIframeProps();
+                that.transitionSlide();
+            }
         });
 
         news.$(window).delayedResize(function () {
@@ -298,6 +325,27 @@ define([
 
             that.count = count;
             that.updateNavigator(count);
+        });
+
+        news.pubsub.on('sidebar:reset', function () {
+            var $sidebar = news.$('.sidebar');
+
+            $sidebar.find('path').attr('class', function () {
+                var cssClass = news.$(this).attr('class').replace('next', '').replace('anim', '');
+
+                return cssClass;
+            });
+
+            $sidebar.find('circle').attr('class', function () {
+                var cssClass = news.$(this).attr('class').replace('next', '').replace('on', '');
+
+                return cssClass;
+            });
+
+            $sidebar.find('li').removeClass('on').removeClass('next');
+            $sidebar.removeAttr('style');
+
+            //$sidebar.find('li.step-' + count).attr('class', 'on step-' + count);
         });
 
         news.pubsub.on('iframe:loaded', function (obj) {
@@ -343,6 +391,7 @@ define([
         setCharacter: setCharacter,
         mainSequence: mainSequence,
         sidebarSequence: sidebarSequence,
+        tryAgainSequence: tryAgainSequence,
         createFirstSlide: createFirstSlide,
         createFirstSlideTitle: createFirstSlideTitle,
         createSlide: createSlide,

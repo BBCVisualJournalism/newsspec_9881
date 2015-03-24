@@ -302,10 +302,15 @@
         scrollToAnimatedWithRAF: function (iframeScrollPosition, scrollDuration) {
             var self = this;
 
-            var scrollY = this.getScrollY(),
-                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition;
-
-            var scrollStep = (scrollPosition - scrollY) / (scrollDuration / 20);
+            var iframeContainer = document.getElementById('iframe_newsspec_9881'),
+                iframeRect = iframeContainer.getBoundingClientRect(),
+                scrollY = this.getScrollY(),
+                scrollTop = iframeRect.top,
+                scrollPosition = this.elm.getBoundingClientRect().top + scrollY + iframeScrollPosition,
+                baseScrollStepCostant = this.elm.getBoundingClientRect().top + scrollY + 600,
+                baseScrollStep = baseScrollStepCostant / (scrollDuration / 20),
+                scrollStep = ((scrollPosition - scrollY) * baseScrollStep) / baseScrollStepCostant;
+                //scrollStep = (scrollPosition - scrollY) / (scrollDuration / 20);
 
             var scroll = window.requestAnimationFrame ||
                          window.webkitRequestAnimationFrame ||
@@ -317,12 +322,20 @@
 
             var scrollInterval = function () {
                 scrollY = self.getScrollY();
-                if (scrollY <= scrollPosition) {
+                /*if (scrollY <= scrollPosition) {
                     window.scrollBy(0, scrollStep);
                     scroll(scrollInterval);
                 } else {
                     self.sendScrollEndEventToIframe();
                     self.showSidebar();
+                }*/
+
+                if (Math.abs(scrollY - scrollPosition) < scrollStep || scrollY === 0) {
+                    self.sendScrollEndEventToIframe();
+                    self.showSidebar();
+                } else {
+                    window.scrollBy(0, scrollStep);
+                    scroll(scrollInterval);
                 }
             };
 

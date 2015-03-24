@@ -4,7 +4,7 @@
   "scaffoldLite":   "false",
   "project_number": "9881",
   "year":           "2015",
-  "imageWidths":    ["320", "640", "730"],
+  "imageWidths":    ["262", "307", "560", "730", "913"],
   "services": {
     "default": "english",
     "others":  ["English Reference", "arabic", "turkish", "persian", "russian", "mundo"]
