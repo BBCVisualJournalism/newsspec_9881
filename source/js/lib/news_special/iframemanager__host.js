@@ -122,7 +122,7 @@
                     }
                 }
                 if (this.sidebarPositionInTheData()) {
-                    this.repositionSidebar(null, this.data.sidebarPosition, this.data.introHeight);
+                    this.repositionSidebar(null, this.data.sidebarPosition, this.data.introHeight, this.data.display);
                 }
             }
         },
@@ -353,6 +353,11 @@
 
             sidebarContainer.className = "show";
         },
+        hideSidebar: function () {
+            var sidebarContainer = document.getElementById('fixedFrame');
+
+            sidebarContainer.className = "";
+        },
         sendScrollEventToIframe: function (uid) {
             var parentScrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop,
                 iframeContainer = document.getElementById('iframe_newsspec_9881'),
@@ -367,7 +372,7 @@
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
-        repositionSidebar: function (uid, width, introHeight) {
+        repositionSidebar: function (uid, width, introHeight, display) {
             var viewportWidth =  Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
                 iframeContainer = document.getElementById('iframe_newsspec_9881'),
                 sidebarContainer = document.getElementById('fixedFrame'),
@@ -375,11 +380,13 @@
                 sidebarRect      = sidebarContainer.getBoundingClientRect(),
                 leftMargin       = ((viewportWidth - width) / 2) + 32;
 
-                this.sidebarOffset = introHeight;
-
-                if (leftMargin === 0) leftMargin = 25;
-
-                sidebarContainer.style.right = leftMargin + 'px';
+                if (display === 'hide') {
+                    this.hideSidebar();
+                } else {
+                    this.sidebarOffset = introHeight;
+                    if (leftMargin === 0) leftMargin = 25;
+                    sidebarContainer.style.right = leftMargin + 'px';
+                }
         }
     };
 

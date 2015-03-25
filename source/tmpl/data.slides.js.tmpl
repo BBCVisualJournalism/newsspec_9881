@@ -2,6 +2,11 @@ define([], function () {
 
     return {
         "static-path" : "<%= pathStatic %>/<%= vocab_dir %>",
+        "share" : {
+                "title" : "<%= share_title %>",
+                "text" : "<%= share_text %>",
+                "url" : "<%= share_url %>"
+        },
         "main-title" : "<%= main_title %>",
         <% for (var a = 0; a < 43; a++) { %>
                 "slide-<%= a %>" : {

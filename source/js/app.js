@@ -34,14 +34,6 @@ define([
             first,
             rest;
 
-        shareTools.init('.tempShareToolsHolder', {
-            storyPageUrl: document.referrer,
-            header:       'Share this page',
-            message:      'Custom message',
-            hashtag:      'BBCNewsGraphics',
-            template:     'dropdown' // 'default' or 'dropdown'
-        });
-
         this.createEventListenersMain();
         this.createFirstSlide();
     };
@@ -55,7 +47,7 @@ define([
             introHeight = news.$('.intro').outerHeight(),
             introH2 = news.$('.intro').find('h2').outerHeight();
 
-        news.pubsub.emit('position:sidebar', [{'width' : width, 'introHeight' : introHeight + introH2 + 35}]);
+        news.pubsub.emit('sidebar:position', [{'display' : 'show', 'width' : width, 'introHeight' : introHeight + introH2 + 35}]);
     };
 
     createFirstSlide = function () {
@@ -143,7 +135,12 @@ define([
             }
             options += '>';
             if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
-            options += '<div class="option">' + optionsNode[i].label + '</div>';
+
+            if (optionsNode[i].secondLabel && this.character === 'female') {
+                options += '<div class="option">' + optionsNode[i].secondLabel + '</div>';
+            } else {
+                options += '<div class="option">' + optionsNode[i].label + '</div>';
+            }
             options += '</div>';
         }
 
@@ -237,7 +234,21 @@ define([
     };
 
     tryAgainSequence = function () {
-        var that = this;
+        var that = this,
+            shareNode = slides['share'];
+
+        //tempShareToolsHolder
+
+        news.$('.coming-soon').before('<div class="tempShareToolsHolder"></div>');
+
+        shareTools.init('.tempShareToolsHolder', {
+            storyPageUrl: document.referrer,
+            header:       shareNode['title'],
+            message:      shareNode['text'],
+            template:     'dropdown' // 'default' or 'dropdown'
+        });
+
+        news.pubsub.emit('sidebar:end', []);
 
         news.$('#end-try-again').bind('click', function () {
             var offset = news.$('.intro').offset().top;
@@ -293,7 +304,9 @@ define([
                 that.character = '';
                 news.$('.intro').find('.option').removeClass('selected').addClass('loaded');
                 news.$('.intro').removeClass('previous').addClass('current');
+                news.$('.tempShareToolsHolder').hide();
                 news.pubsub.emit('sidebar:reset', []);
+                news.pubsub.emit('sidebar:position', [{'display' : 'hide', 'width' : null, 'introHeight' : null}]);
             } else {
                 that.state = '';
                 that.emitIframeProps();
@@ -343,9 +356,15 @@ define([
             });
 
             $sidebar.find('li').removeClass('on').removeClass('next');
+            $sidebar.find('.end').addClass('off');
+            $sidebar.find('.end').hide();
             $sidebar.removeAttr('style');
 
             //$sidebar.find('li.step-' + count).attr('class', 'on step-' + count);
+        });
+
+        news.pubsub.on('sidebar:end', function () {
+            news.$('.sidebar').find('.end').show();
         });
 
         news.pubsub.on('iframe:loaded', function (obj) {
@@ -363,6 +382,7 @@ define([
     updateNavigator = function (count) {
         var $sidebar = news.$('.sidebar');
 
+        $sidebar.find('.end').addClass('off');
         $sidebar.find('circle.step-' + count).attr('class', 'on step-' + count);
         $sidebar.find('circle.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
         $sidebar.find('path.step-' + count).not('.trail').attr('class', 'anim step-' + count);
@@ -378,6 +398,7 @@ define([
         $sidebar.find('path.step-' + (count + 1)).not('.trail').attr('class', 'next step-' + (count + 1));
 
         $sidebar.find('li.step-' + (count + 1)).attr('class', 'next step-' + (count + 1));
+        $sidebar.find('.end').removeClass('off');
     };
 
     sidebarEnlarge = function () {

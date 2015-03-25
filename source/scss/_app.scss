@@ -25,6 +25,34 @@
                 -o-transition: all .7s ease;
                 transition: all .7s ease;
             }
+            #end-try-again {
+                width: 218px;
+                padding: 8px 0 9px 30px;
+                background: #007f7f url(../img/sprite.png) no-repeat 40px 9px;
+                color: #fff;
+                text-align: center;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+        }
+        .share {
+            width: 218px;
+            padding: 8px 0 9px 30px;
+            background: #69c023 url(../img/sprite.png) no-repeat 40px -21px;
+            color: #fff;
+            text-align: center;
+            margin: 2px auto;
+            cursor: pointer;
+        }
+        .share__button {
+            height: auto;
+            .share__png_icon {
+                display: none;
+            }
+            p {
+                font-weight: bold;
+                color: #fff;
+            }
         }
         .coming-soon {
             height: 600px;
@@ -33,7 +61,8 @@
             padding-bottom: 9px;
             border-bottom: 1px solid #ccc;
             font-size: 20px;
-            padding-top: 12px;
+            padding-top: 5px;
+            margin: 0 0 10px 0;
         }
         h3 {
             padding-bottom: 0;
@@ -108,6 +137,12 @@
                 text-align: center;
                 &.end {
                     display: none;
+                    position: absolute;
+                    bottom: -7px;
+                    right: 70px;
+                    &.off {
+                        bottom: -100px;
+                    }
                 }
             }
             li {
@@ -322,4 +357,11 @@
             }
         }
     }
+}
+
+html[lang="ar"] body .main .intro, html[lang="ar"] body .main .slides,
+html[lang="fa"] body .main .intro, html[lang="fa"] body .main .slides,
+html[lang="ps"] body .main .intro, html[lang="ps"] body .main .slides,
+html[lang="ur"] body .main .intro, html[lang="ur"] body .main .slides{
+    float: right;
 }

@@ -154,7 +154,7 @@
     "slide_15_option_1_description": "",
     "slide_15_option_1_number": "DO NOT EDIT",
     "slide_15_option_2": "",
-    "slide_15_option_2_description": "",
+    "": "",
     "slide_15_option_2_number": "DO NOT EDIT",
     "slide_15_image": "",
     "slide_16_title": "",
@@ -426,5 +426,8 @@
     "slide_42_option_2": "",
     "slide_42_option_2_description": "",
     "slide_42_option_2_number": "",
-    "slide_42_image": ""
+    "slide_42_image": "",
+    "share_title": "",
+    "share_text": "",
+    "share_url": ""
 }

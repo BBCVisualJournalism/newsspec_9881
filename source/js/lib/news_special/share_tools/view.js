@@ -107,7 +107,7 @@ define(['lib/news_special/bootstrap', 'lib/news_special/template_engine', 'lib/n
             this.viewReady = true;
             news.pubsub.emit('ns:module:ready');
         } else {
-            throw new Error('DOMError: View already rendered');
+
         }
     };
     /**
