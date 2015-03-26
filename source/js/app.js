@@ -45,9 +45,10 @@ define([
     emitIframeProps = function () {
         var width = news.$('.main').width(),
             introHeight = news.$('.intro').outerHeight(),
-            introH2 = news.$('.intro').find('h2').outerHeight();
+            introH2 = news.$('.intro').find('h2').outerHeight(),
+            rtl = (this.isRTL()) ? 'rtl' : 'ltr';
 
-        news.pubsub.emit('sidebar:position', [{'display' : 'show', 'width' : width, 'introHeight' : introHeight + introH2 + 35}]);
+        news.pubsub.emit('sidebar:position', [{'display' : 'show', 'width' : width, 'introHeight' : introHeight + introH2 + 35, 'direction' : rtl}]);
     };
 
     createFirstSlide = function () {
@@ -169,6 +170,7 @@ define([
 
             if (that.character === 'female' && secondOption) {
                 slideNumber = secondOption;
+                slide = slides['slide-' + slideNumber];
             }
 
             slideHtml = that.createSlide(slideNumber) + that.createSlidePlaceholder();
@@ -202,6 +204,12 @@ define([
         var number = slide ? slide['options']['a']['number'] : 0;
 
         return number === '999';
+    };
+
+    isRTL = function () {
+        var rtl = news.$('html').attr('lang') === 'ar' || news.$('html').attr('lang') === 'fa' || news.$('html').attr('lang') === 'ur' || news.$('html').attr('lang') === 'ps';
+
+        return rtl;
     };
 
     heightPair = function (isNew) {
@@ -318,6 +326,11 @@ define([
             that.heightPair();
             that.emitIframeProps();
         });
+
+        /*news.$('.full').bind('click', function () {
+            var elem = document.body; // Make the body go full screen.
+            that.requestFullScreen(elem);
+        });
         /*$(window).resize(function () {
             setTimeout(function (){
                 console.log('resize');
@@ -402,7 +415,7 @@ define([
     };
 
     sidebarEnlarge = function () {
-        news.$('.sidebar').height(news.$('.sidebar').height() + 62);
+        news.$('.sidebar').height(news.$('.sidebar').outerHeight(true) + 62);
     };
 
     return {
@@ -420,6 +433,7 @@ define([
         createSlidePlaceholder: createSlidePlaceholder,
         createOptions: createOptions,
         isThisTheEnd: isThisTheEnd,
+        isRTL: isRTL,
         bindOptions: bindOptions,
         createEventListenersMain: createEventListenersMain,
         createEventListenersSidebar: createEventListenersSidebar,

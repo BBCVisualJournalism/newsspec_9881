@@ -1,4 +1,36 @@
-/* separate your sass into different files to keep it maintainable!  */
+@keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-webkit-keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-moz-keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@-ms-keyframes dash {
+  from {
+    stroke-dashoffset: 50;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .main {
     max-width: 974px;
     position: relative;
@@ -192,6 +224,8 @@
     }
     svg {
         transform: translate(-250px,-70px);
+        z-index: 1000;
+        position: relative;
         circle {
             fill: #fff;
             &.next {
@@ -219,29 +253,17 @@
                 stroke:#007F7F;
                 stroke-dasharray: 65;
                 stroke-dashoffset: 65;
-                animation: dash 1s linear alternate 1;
                 -webkit-animation: dash 1s linear alternate 1;
                 -webkit-animation-fill-mode: forwards;
+                -moz-animation: dash 1s linear alternate 1;
+                -moz-animation-fill-mode: forwards;
+                -ms-animation: dash 1s linear alternate 1;
+                -ms-animation-fill-mode: forwards;
+                animation: dash 1s linear alternate 1;
+                animation-fill-mode: forwards;
             }
         }
     }
-}
-
-@keyframes dash {
-  from {
-    stroke-dashoffset: 50;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@-webkit-keyframes dash {
-  from {
-    stroke-dashoffset: 50;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
 }
 
 .main.second {
@@ -250,6 +272,32 @@
     padding: 0;
 }
 
+.single {
+    padding:20px;
+    h2 {
+        padding-bottom: 17px;
+        font-size: 24px;
+        border-bottom: 1px solid #ccc;
+        padding-top: 5px;
+        margin: 0 0 10px;
+    }
+    a {
+        background: #7a7a7a;
+        padding: 21px;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+        font-size: 20px;
+        cursor: pointer;
+        background: #404040;
+        display: inline-block;
+        text-decoration: none;
+        margin-right: 16px;
+        &:hover {
+            background: #007f7f;
+        }
+    }
+}
 /*
 .main {
     max-width: 974px;
@@ -311,6 +359,14 @@
             }
         }
     }
+
+    html[lang="ar"] body .main .intro, html[lang="ar"] body .main .slides,
+    html[lang="fa"] body .main .intro, html[lang="fa"] body .main .slides,
+    html[lang="ps"] body .main .intro, html[lang="ps"] body .main .slides,
+    html[lang="ur"] body .main .intro, html[lang="ur"] body .main .slides{
+        margin-right: 41px;
+        margin-left: 0;
+    }
 }
 @include respondMinMax (720px, false) {
     .main {
@@ -324,6 +380,14 @@
             padding-right: 41px;
             width: 98%;
         }
+    }
+
+    html[lang="ar"] body .main .intro,
+    html[lang="fa"] body .main .intro,
+    html[lang="ps"] body .main .intro,
+    html[lang="ur"] body .main .intro {
+        padding-left: 41px;
+        padding-right: 0;
     }
 }
 @include respondMinMax (800px, false) {
@@ -362,6 +426,20 @@
 html[lang="ar"] body .main .intro, html[lang="ar"] body .main .slides,
 html[lang="fa"] body .main .intro, html[lang="fa"] body .main .slides,
 html[lang="ps"] body .main .intro, html[lang="ps"] body .main .slides,
-html[lang="ur"] body .main .intro, html[lang="ur"] body .main .slides{
+html[lang="ur"] body .main .intro, html[lang="ur"] body .main .slides {
     float: right;
+    .option-wrapper {
+        float: right;
+        margin-right: 30px;
+        margin-left: 0;
+        &:first-child {
+            margin: 0;
+        }
+    }
+}
+html[lang="ar"] body .main svg,
+html[lang="fa"] body .main svg,
+html[lang="ps"] body .main svg,
+html[lang="ur"] body .main svg {
+    transform: translate(230px,-70px);
 }

@@ -159,10 +159,11 @@ var logoModifier = translations[vocab_dir].name;
 	<!--[if gt IE 8]><!-->
 <link href="<%= pathStatic %>/<%= vocab_dir %>/css/main.css?v=<%= version %>" rel="stylesheet" type="text/css" media="all" />
 </head>
-<body>
+<body class="single">
 <h2><%= obj['slide_'+numberInFilename+'_title'] %></h3>
+<img src="<%= pathStatic %>/<%= vocab_dir %>/img/730/<%= obj['slide_'+numberInFilename+'_image'] %>" />
 <p><%= obj['slide_'+numberInFilename] %></p>
 <h3><%= obj['slide_'+numberInFilename+'_subtitle'] %></h3>
-<a href="slide-<%= obj['slide_'+numberInFilename+'_option_1_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_1'] %></a> | <a href="slide-<%= obj['slide_'+numberInFilename+'_option_2_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_2'] %></a>
+<a href="slide-<%= obj['slide_'+numberInFilename+'_option_1_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_1'] %></a> <a href="slide-<%= obj['slide_'+numberInFilename+'_option_2_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_2'] %></a>
 </body>
 </html>

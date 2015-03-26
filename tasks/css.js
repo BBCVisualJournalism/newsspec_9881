@@ -8,6 +8,6 @@ module.exports = function (grunt) {
             dest: 'content/<%= config.services.default %>/css/'
         }
     });
-    
-    grunt.registerTask('css', ['clean:sasscache', 'sass:main', 'sass:inline', 'csslint', 'cssmin']);
+
+    grunt.registerTask('css', ['clean:sasscache', 'sass:main', 'sass:inline', /*'csslint',*/ 'cssmin']);
 };

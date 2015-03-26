@@ -65,10 +65,12 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
                 width = obj.width,
                 introHeight = obj.introHeight,
                 display = obj.display,
+                direction = obj.direction,
                 message = {
                     sidebarPosition: width,
                     introHeight: introHeight,
                     display: display,
+                    direction: direction,
                     hostPageCallback: false
                 };
             if (talker_uid.indexOf('index') > -1) window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');

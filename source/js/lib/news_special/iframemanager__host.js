@@ -51,7 +51,8 @@
             this.elm.className = 'responsive-iframe';
             this.elm.style.width = '100%';
             this.elm.scrolling = 'no';
-            this.elm.allowfullscreen = true;
+            //this.elm.allowFullScreen = true;
+            this.elm.setAttribute('allowfullscreen', '');
             this.elm.frameBorder = '0';
 
             this.decideHowToTalkToIframe(href);
@@ -122,7 +123,7 @@
                     }
                 }
                 if (this.sidebarPositionInTheData()) {
-                    this.repositionSidebar(null, this.data.sidebarPosition, this.data.introHeight, this.data.display);
+                    this.repositionSidebar(null, this.data.sidebarPosition, this.data.introHeight, this.data.display, this.data.direction);
                 }
             }
         },
@@ -372,7 +373,7 @@
                 };
             iframeContainer.querySelector('iframe').contentWindow.postMessage(uid + '::' + JSON.stringify(message), '*');
         },
-        repositionSidebar: function (uid, width, introHeight, display) {
+        repositionSidebar: function (uid, width, introHeight, display, direction) {
             var viewportWidth =  Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
                 iframeContainer = document.getElementById('iframe_newsspec_9881'),
                 sidebarContainer = document.getElementById('fixedFrame'),
@@ -385,7 +386,11 @@
                 } else {
                     this.sidebarOffset = introHeight;
                     if (leftMargin === 0) leftMargin = 25;
-                    sidebarContainer.style.right = leftMargin + 'px';
+                    if (direction === 'rtl') {
+                        sidebarContainer.style.left = leftMargin + 'px';
+                    } else {
+                        sidebarContainer.style.right = leftMargin + 'px';
+                    }
                 }
         }
     };
