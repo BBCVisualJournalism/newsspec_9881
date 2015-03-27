@@ -1,3 +1,36 @@
 $fix-mqs: 1024px;
 
 @import "main";
+
+.main {
+    .sidebar {
+        .ul, svg {
+            display: none;
+        }
+        .fallback {
+            display: block;
+            background: #007f7f url(../img/navigator-sprite.png) no-repeat 0 0;
+            height: 944px;
+            width: 100px;
+            margin: 0 auto;
+            &.step-2 {
+                background-position: -109px 0;
+            }
+            &.step-3 {
+                background-position: -218px 0;
+            }
+            &.step-4 {
+                background-position: -327px 0;
+            }
+            &.step-5 {
+                background-position: -436px 0;
+            }
+            &.step-6 {
+                background-position: -545px 0;
+            }
+            &.step-7 {
+                background-position: -654px 0;
+            }
+        }
+    }
+}

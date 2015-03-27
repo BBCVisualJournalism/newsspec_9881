@@ -158,6 +158,9 @@
         right: 0;
         overflow: hidden;
         height: 165px;
+        .fallback {
+            display: none;
+        }
         .overlay {
             display: block;
             position: absolute;

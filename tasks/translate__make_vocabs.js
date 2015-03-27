@@ -22,7 +22,7 @@ module.exports = function (grunt) {
             username:              '<%= env.google.username %>',
             password:              '<%= env.google.password %>',
             worksheets:            worksheets.worksheetIds,
-            whitelisted_services:  ['English reference', 'Language', 'arabic', 'azeri', 'bengali', 'brasil', 'burmese', 'chinese_simp', 'chinese_trad', 'cymru', 'english', 'french', 'gahuza', 'hausa', 'hindi', 'indonesian', 'kyrgyz', 'mundo', 'nepali', 'pashto', 'persian', 'portuguese', 'russian', 'sinhala', 'somali', 'swahili', 'tamil', 'turkish', 'ukrainian', 'urdu' , 'uzbek', 'vietnamese']
+            whitelisted_services:  ['English reference', 'Language', 'arabic', 'azeri', 'bengali', 'brasil', 'burmese', 'chinese_simp', 'chinese_trad', 'cymru', 'english', 'french', 'gahuza', 'hausa', 'hindi', 'indonesia', 'kyrgyz', 'mundo', 'nepali', 'pashto', 'persian', 'portuguese', 'russian', 'sinhala', 'somali', 'swahili', 'tamil', 'turkish', 'ukrainian', 'urdu' , 'uzbek', 'vietnamese']
         }
     });
 

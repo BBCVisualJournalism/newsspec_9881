@@ -401,6 +401,8 @@ define([
         $sidebar.find('path.step-' + count).not('.trail').attr('class', 'anim step-' + count);
 
         $sidebar.find('li.step-' + count).attr('class', 'on step-' + count);
+
+        $sidebar.find('.fallback').attr('class', 'fallback step-' + count);
     };
 
     updateNavigatorNext = function (count) {
