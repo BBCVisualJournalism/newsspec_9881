@@ -238,14 +238,13 @@ define([
                 }
             });
             $descriptions.height(highest);
+            highest = 0;
         });
     };
 
     tryAgainSequence = function () {
         var that = this,
             shareNode = slides['share'];
-
-        //tempShareToolsHolder
 
         news.$('.coming-soon').before('<div class="tempShareToolsHolder"></div>');
 
@@ -313,6 +312,7 @@ define([
                 news.$('.intro').find('.option').removeClass('selected').addClass('loaded');
                 news.$('.intro').removeClass('previous').addClass('current');
                 news.$('.tempShareToolsHolder').hide();
+                news.$('.coming-soon').show();
                 news.pubsub.emit('sidebar:reset', []);
                 news.pubsub.emit('sidebar:position', [{'display' : 'hide', 'width' : null, 'introHeight' : null}]);
             } else {

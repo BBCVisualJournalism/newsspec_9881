@@ -10,7 +10,7 @@
 #fixedFrame {
     display: none;
 }
-@media only screen and (min-width: 601px) {
+@media only screen and (min-width: 660px) {
     #fixedFrame {
         position: fixed;
         top: 1em;
@@ -26,6 +26,22 @@
 }
 
 </style>
+<!--[if gte IE 8]>
+<style>
+#fixedFrame {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    width: 148px;
+    display: none;
+    padding-top: 6px;
+    z-index: 999;
+}
+#fixedFrame.show {
+    display:block;
+}
+</style>
+<![endif]-->
 <div id="fixedFrame">
     <a href="<%= path %>/<%= vocab_dir %>/sidebar.html?v=<%= version %>" id="<%= iframeUid %>" data-static-iframe-height="600">iFrame</a>
 </div>

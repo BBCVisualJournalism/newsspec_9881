@@ -179,23 +179,10 @@ if (!scaffoldLite) {
 		}
 	})();
 	</script>
-	<!--[if lt IE 8]>
+	<link href="<%= pathStatic %>/<%= vocab_dir %>/css/main.css?v=<%= version %>" rel="stylesheet" type="text/css" media="all" />
+	<!--[if gte IE 8]>
 	    <link type="text/css" rel="stylesheet" href="<%= pathStatic %>/<%= vocab_dir %>/css/legacy-ie.css?v=<%= version %>" />
 	<![endif]-->
-	<!--[if gt IE 8]><!-->
-	<script>
-	(function () {
-		function oldIE() {
-			return !!(document.documentMode && (document.documentMode < 9));
-		};
-		var styleSheet = oldIE() ? 'legacy-ie':'main';
-		document.write('<link href="<%= pathStatic %>/<%= vocab_dir %>/css/' + styleSheet + '.css?v=<%= version %>" rel="stylesheet" type="text/css" media="all" />');
-	})();
-	</script>
-	<noscript>
-		<link href="<%= pathStatic %>/<%= vocab_dir %>/css/main.css?v=<%= version %>" rel="stylesheet" type="text/css" media="all" />
-	</noscript>
-	<!--<![endif]-->
 <%
 }
 %>

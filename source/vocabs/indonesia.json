@@ -46,7 +46,7 @@
     "slide_4_title": "Mencarinya",
     "slide_4": "Anda ke luar mencari Ahmad. Anda mencoba ke halte bus ketika Anda tiba namun tidak menemukannya.  <br>Anda bertanya ke sekitar dengan hati-hati, namun tidak beruntung.  <br><br>Anda membeli makanan serta obat-obatan dan kembali ke flat untuk berkumpul dengan yang lain. <br>Semua merasa berterima kasih atas makanan dan pasokan yang Anda bawa. Anda semua sudah begitu lapar dan haus.<br><br>Ahmad akhirnya kembali. &quot;kapal sudah siap. Kalian pergi SEKARANG!&quot;  <br>Dia membagi orang-orang ke dalam dua kelompok: perempuan dan anak-anak dalam satu kapal dan pria di kapal lain. Anda meminta agar keluarga tetap bersatu namun dia tidak mendengarkan Anda.",
     "slide_4_subtitle": "Anda harus memilih",
-    "slide_4_option_1": "TERPISAH DARI KELUARGA",
+    "slide_4_option_1": "Terpisah dari keluarga",
     "slide_4_option_1_number": "8",
     "slide_4_option_2": "Menolak dipisahkan",
     "slide_4_option_2_number": "7",
@@ -335,7 +335,7 @@
     "slide_33_option_1_number": "36",
     "slide_33_option_2": "Negosiasi",
     "slide_33_option_2_description": "Kehilangan semua uang simpanan Anda akan menjadi masalah karena Anda tidak akan bisa membayar untuk perjalanan selanjutnya",
-    "slide_33_option_2_number": "34",
+    "slide_33_option_2_number": "34#35",
     "slide_33_image": "desert_truck.gif",
     "slide_34_title": "Berunding (Pria)",
     "slide_34": "Anda mulai berunding dengan kelompok milisi itu. <br><br>Anda mencoba memberi tahu mereka bahwa Anda tidak memiliki banyak uang. <br>Mereka menyeret Anda keluar dari truk dan menggeledah Anda. <br><br>Mereka memukuli Anda, mengambil uang Anda dan pergi.<br>Kini Anda terperangkap di Libya.  Paling tidak keluarga Anda masih hidup. <br><br>Anda harus tinggal di negara itu dan memulai kehidupan baru.<br>Anda melarikan diri dari situasi konflik dan masuk ke dalam konflik lainnya dan kehilangan semua uang Anda.",
@@ -429,6 +429,6 @@
     "slide_42_image": "syria.gif",
     "": "El Salloum",
     "share_title": "Bagi",
-    "share_text": "Bisakah Anda mengatasi pilihan sulit yang dihadapi orang-orang yang mengungsi dari kawasan perang?  Berperanlah sebagai mereka dalam #PerjalananSuriah kami",
+    "share_text": "Bisakah Anda mengatasi pilihan sulit yang dihadapi orang-orang yang mengungsi dari kawasan perang?  Berperanlah sebagai mereka dalam #PerjalananSuriah kami http://bbc.in/1234567",
     "share_url": "#"
 }
