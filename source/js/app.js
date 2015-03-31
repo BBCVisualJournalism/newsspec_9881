@@ -138,9 +138,9 @@ define([
             if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
 
             if (optionsNode[i].secondLabel && this.character === 'female') {
-                options += '<div class="option">' + optionsNode[i].secondLabel + '</div>';
+                options += '<div class="option"><span>' + optionsNode[i].secondLabel + '</span></div>';
             } else {
-                options += '<div class="option">' + optionsNode[i].label + '</div>';
+                options += '<div class="option"><span>' + optionsNode[i].label + '</span></div>';
             }
             options += '</div>';
         }
@@ -216,7 +216,8 @@ define([
         var $slides = news.$('.slides'),
             $slide,
             $descriptions,
-            highest = 0;
+            highestDescription = 0,
+            highestOption = 0;
 
         if (isNew === 'new') {
             $slide = $slides.find('.slide.new');
@@ -226,19 +227,33 @@ define([
 
         $slide.each(function() {
             $descriptions = news.$(this).find('.description');
+            $options = news.$(this).find('.option');
             $descriptions.removeAttr('style');
+            $options.removeAttr('style');
             $descriptions.each(function () {
                 var $currentItem = news.$(this),
                     $previousItem = news.$(this).closest('.option-wrapper').prev().find('.description');
 
-                if ($currentItem.height() < $previousItem.height() && $previousItem.height() > highest) {
-                    highest = $previousItem.height();
-                } else if ($currentItem.height() > $previousItem.height() && $currentItem.height() > highest) {
-                    highest = $currentItem.height();
+                if ($currentItem.height() < $previousItem.height() && $previousItem.height() > highestDescription) {
+                    highestDescription = $previousItem.height();
+                } else if ($currentItem.height() > $previousItem.height() && $currentItem.height() > highestDescription) {
+                    highestDescription = $currentItem.height();
                 }
             });
-            $descriptions.height(highest);
-            highest = 0;
+            $descriptions.height(highestDescription);
+            highestDescription = 0;
+            $options.each(function () {
+                var $currentItem = news.$(this),
+                    $previousItem = news.$(this).closest('.option-wrapper').prev().find('.option');
+
+                if ($currentItem.height() < $previousItem.height() && $previousItem.height() > highestOption) {
+                    highestOption = $previousItem.height();
+                } else if ($currentItem.height() > $previousItem.height() && $currentItem.height() > highestOption) {
+                    highestOption = $currentItem.height();
+                }
+            });
+            $options.height(highestOption);
+            highestOption = 0;
         });
     };
 

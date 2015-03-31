@@ -3,6 +3,14 @@ $fix-mqs: 1024px;
 @import "main";
 
 .main {
+    .intro .option-wrapper .option {
+        height: auto;
+        padding-top: 21px;
+        padding-bottom: 21px;
+    }
+    .slides .option-wrapper .option {
+        padding-top: 10px;
+    }
     .sidebar {
         ul, svg {
             display: none;

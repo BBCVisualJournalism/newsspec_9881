@@ -32,10 +32,10 @@
     "slide_3_title": "Alejandría",
     "slide_3": "Toman un autobús durante cuatro horas hasta Alejandría.<br><br>Ahmad, el traficante, los lleva a un departamento sucio, donde se vive en condiciones de hacinamiento.<br><br>&quot;Quédense aquí hasta que yo regrese. ¡No salgan!&quot; No quiere que los vean. Les exige un pago inicial de US$7.000 por persona y se va con el dinero.<br><br>Tú y tu familia esperan…y esperan.<br><br>El lugar es asqueroso; hay un solo lavabo para decenas de personas. Tu familia se está enfermando.<br><br>Después de cinco días, el alimento escasea. Llamas a Ahmad pero no contesta.<br><br>¿Habrá huido con vuestro dinero? ¿Debiste haber confiado en él? Debes decidir si quedarte en el departamento o salir a buscarlo y conseguir suministros.",
     "slide_3_subtitle": "Debes escoger",
-    "slide_3_option_1": "Opción 1",
+    "slide_3_option_1": "Te quedas adentro",
     "slide_3_option_1_description": "Si te quedas en el apartamento se les acabará la comida. Ahmad puede haberte quitado tu dinero y haber decidido que va a dejarlos abandonados allí.",
     "slide_3_option_1_number": "6",
-    "slide_3_option_2": "Opción 2",
+    "slide_3_option_2": "Sales",
     "slide_3_option_2_description": "Si sales corres el riesgo de ser identificado como un migrante indocumentado y, si te atrapan, podrían deportarte de regreso a Siria. Además Ahmad podría descubrir que lo has desobedecido y podría enojarse.",
     "slide_3_option_2_number": "5#4",
     "slide_3_option_3": "Envías a tu hermana",
@@ -427,8 +427,10 @@
     "slide_42_option_2_description": "",
     "slide_42_option_2_number": "",
     "slide_42_image": "syria.gif",
-    "": "El Salloum",
+    "start": "PRINCIPIO",
+    "end": "FIN",
     "share_title": "Compartir",
-    "share_text": "¿Cuáles son las drásticas decisiones que deben tomar quienes huyen de zonas de guerra? El viaje de #RefugiadosSirios http://bbc.in/1234567",
-    "share_url": "#"
+    "share_text": "¿Cuáles son las drásticas decisiones que deben tomar quienes huyen de zonas de guerra? El viaje de #RefugiadosSirios",
+    "share_url": "http://www.bbc.co.uk/mundo/noticias/2015/04/150401_smj",
+    "": "El Salloum"
 }

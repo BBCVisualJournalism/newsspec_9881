@@ -1,10 +1,10 @@
 {
   "debug":          "false",
-  "whichEnv":       "local",
+  "whichEnv":       "live",
   "scaffoldLite":   "false",
   "project_number": "9881",
   "year":           "2015",
-  "imageWidths":    ["262", "307", "560", "730", "913"],
+  "imageWidths":    ["624", "730", "913"],
   "services": {
     "default": "english",
     "others":  ["English Reference", "arabic", "turkish", "persian", "russian", "mundo", "indonesia"]

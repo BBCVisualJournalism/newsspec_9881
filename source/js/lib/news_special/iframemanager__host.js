@@ -195,6 +195,8 @@
                 sidebarFrameContainer.style.top = delta + 'px';
                 sidebarFrameContainer.style.position = position;
             }
+
+            this.repositionSidebar;
         },
         getAnyInstructionsFromIframe: function () {
             if (

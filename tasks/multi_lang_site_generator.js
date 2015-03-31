@@ -11,12 +11,17 @@ module.exports = function (grunt) {
         'sidebar.html': 'sidebar.html.tmpl',
         'sidebar.inc':  'sidebar.inc.tmpl',
         'test.html':  'test.html.tmpl',
-        'js/data/slides.js':  'data.slides.js.tmpl'
+        'js/data/slides.js':  'data.slides.js.tmpl',
+        'slide.html' : 'slide.html.tmpl'
     };
 
     // adding slides
-    for (var a = 0; a < 43; a++) {
-        projectFiles['slide-' + a + '.html'] = 'slide.html.tmpl';
+    var genres = ['m', 'f'];
+
+    for (var i = 0;i  < genres.length; i++) {
+        for (var j = 1; j < 43; j++) {
+            projectFiles['slide-' + genres[i] + '-' + j + '.html'] = 'slide.html.tmpl';
+        };
     };
 
     // *************************************************************************

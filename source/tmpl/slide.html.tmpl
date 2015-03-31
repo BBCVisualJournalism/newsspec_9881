@@ -1,4 +1,52 @@
-<% var numberInFilename = filename.replace(/slide-/g, '').replace(/.html/g, '') %>
+<%
+if (filename === 'slide.html') {
+	var numberInFilename = 0;
+} else {
+	var numberInFilename = filename.replace(/slide-.-/g, '').replace(/.html/g, '');
+};
+
+var getGenre = function () {
+ 	if (filename.indexOf('-m-') > -1) { //male
+		return 'male';
+	} else if (filename.indexOf('-f-') > -1) { //female
+		return 'female';
+	} else { //slide 0
+		return null;
+	};
+};
+
+var getNumbers = function (number) {
+	if (number.indexOf('#') > -1) {
+		numberArray = number.split("#");
+
+		return numberArray;
+	} else {
+		return number;
+	}
+};
+
+var buildOption = function (str) {
+	var option = '';
+
+	if (numberInFilename === 0) {
+		if (getNumbers(str)[1] === 'male') option = 'm-1';
+		if (getNumbers(str)[1] === 'female') option = 'f-1';
+	} else {
+		if (Array.isArray(getNumbers(str))) {
+			if (getGenre() === 'male') {
+				option = 'm-' + getNumbers(str)[0];
+			} else if (getGenre() === 'female') {
+				option = 'f-' + getNumbers(str)[1];
+			}
+		} else {
+			option = getGenre().substr(0,1) + '-' + getNumbers(str);
+		}
+	}
+
+	return option;
+};
+
+%>
 <!DOCTYPE html><%
 
 var translations = {
@@ -159,10 +207,26 @@ var logoModifier = translations[vocab_dir].name;
 <link href="<%= pathStatic %>/<%= vocab_dir %>/css/main.css?v=<%= version %>" rel="stylesheet" type="text/css" media="all" />
 </head>
 <body class="single">
-<h2><%= obj['slide_'+numberInFilename+'_title'] %></h3>
-<img src="<%= pathStatic %>/<%= vocab_dir %>/img/730/<%= obj['slide_'+numberInFilename+'_image'] %>" />
+<% if (numberInFilename === 0) { %>
+<h2><%= obj['main_title'] %></h2>
+<% } else { %>
+<h2><%= obj['slide_'+numberInFilename+'_title'] %></h2>
+<% } %>
+<img src="<%= pathStatic %>/<%= vocab_dir %>/img/624/<%= obj['slide_'+numberInFilename+'_image'] %>" />
 <p><%= obj['slide_'+numberInFilename] %></p>
+<% if (obj['slide_'+numberInFilename+'_option_1_number'] !== '999') { %>
 <h3><%= obj['slide_'+numberInFilename+'_subtitle'] %></h3>
-<a href="slide-<%= obj['slide_'+numberInFilename+'_option_1_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_1'] %></a> <a href="slide-<%= obj['slide_'+numberInFilename+'_option_2_number'] %>.html"><%= obj['slide_'+numberInFilename+'_option_2'] %></a>
+<a href="slide-<%= buildOption(obj['slide_'+numberInFilename+'_option_1_number']) %>.html"><%= obj['slide_'+numberInFilename+'_option_1'] %></a>
+<a href="slide-<%= buildOption(obj['slide_'+numberInFilename+'_option_2_number']) %>.html"><%= obj['slide_'+numberInFilename+'_option_2'] %></a>
+<% if (obj['slide_'+numberInFilename+'_option_3_number']) { %>
+<% if (getGenre() === 'male') { %>
+<a href="slide-<%= buildOption(obj['slide_'+numberInFilename+'_option_3_number']) %>.html"><%= obj['slide_'+numberInFilename+'_option_3'] %></a>
+<% } else { %>
+<a href="slide-<%= buildOption(obj['slide_'+numberInFilename+'_option_3_number']) %>.html"><%= obj['slide_'+numberInFilename+'_option_3_alternative'] %></a>
+<% } %>
+	<% } %>
+<% } else { %>
+<a href="slide.html"><%= obj['slide_'+numberInFilename+'_subtitle'] %></a>
+<% } %>
 </body>
 </html>

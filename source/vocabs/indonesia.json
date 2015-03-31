@@ -108,7 +108,7 @@
     "slide_10_option_2_number": "",
     "slide_10_image": "drowning.gif",
     "slide_11_title": "Anda tidak membayar",
-    "slide_11": "Anda mencapai pantai. Kapal penuh sesak dengan orang-orang. <br>Satu dipenuhi dengan perempuan dan anak-anak, satunya lagi dipenuhi kaum pria. <br><br>Anda terpisah dari keluarga Anda. Anda tidak tahu kapan bisa melihat mereka lagi. <br><br>Kelelahan, lapar dan berdesakan di dalam kapal, Anda kemudian ditemukan oleh penjaga pantai Italia beberapa hari kemudian. <br>Anda berhasil tiba di Eropa. Kapal lainnya, yang juga dipenuhi kaum pria, tidak berada dalam keadaan baik dan tidak berhasil sampai. Lelaki lain dalam keluarga Anda dilaporkan hilang.",
+    "slide_11": "Anda mencapai pantai. Kapal penuh sesak dengan orang-orang.<br><br>Satu dipenuhi dengan perempuan dan anak-anak, satunya lagi dipenuhi kaum pria. <br><br>Anda terpisah dari keluarga Anda. Anda tidak tahu kapan bisa melihat mereka lagi. <br><br>Kelelahan, lapar dan berdesakan di dalam kapal, Anda kemudian ditemukan oleh penjaga pantai Italia beberapa hari kemudian. <br>Anda berhasil tiba di Eropa. Kapal lainnya, yang juga dipenuhi kaum pria, tidak berada dalam keadaan baik dan tidak berhasil sampai. Lelaki lain dalam keluarga Anda dilaporkan hilang.",
     "slide_11_subtitle": "Coba lagi",
     "slide_11_option_1": "",
     "slide_11_option_1_description": "",
@@ -427,8 +427,10 @@
     "slide_42_option_2_description": "",
     "slide_42_option_2_number": "",
     "slide_42_image": "syria.gif",
-    "": "El Salloum",
+    "start": "MULAI",
+    "end": "SELESAI",
     "share_title": "Bagi",
-    "share_text": "Bisakah Anda mengatasi pilihan sulit yang dihadapi orang-orang yang mengungsi dari kawasan perang?  Berperanlah sebagai mereka dalam #PerjalananSuriah kami http://bbc.in/1234567",
-    "share_url": "#"
+    "share_text": "Bisakah Anda mengatasi pilihan  pengungsi dari kawasan perang? Ikuti #PerjalananSuriah kami",
+    "share_url": "http://www.bbc.co.uk/indonesia/dunia/2015/03/150401_smj",
+    "": "El Salloum"
 }

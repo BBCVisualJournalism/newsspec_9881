@@ -36,7 +36,7 @@ module.exports = function (grunt) {
             baseUrl: './source/js',
             paths: requirePathsForJquery2build,
             optimize: 'uglify2',
-            generateSourceMaps: true,
+            generateSourceMaps: false,
             preserveLicenseComments: false,
             name: './app',
             out: './content/<%= config.services.default %>/js/all-html5.js'
