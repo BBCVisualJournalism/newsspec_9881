@@ -37,8 +37,8 @@
     color: #404040;
     .slides,
     .intro {
-        margin-left: 31px;
-        width: 82%;
+        /*margin-left: 31px;*/
+        width: 100%;
         float: left;
         .slide {
             padding-top: 10px;
@@ -61,7 +61,7 @@
             #end-try-again {
                 width: 218px;
                 padding: 8px 0 9px 30px;
-                background: #007f7f url(../img/sprite.png) no-repeat 40px 6px;
+                background: #007f7f url(../img/sprite.png) no-repeat 40px 7px;
                 color: #fff;
                 text-align: center;
                 margin: 0 auto;
@@ -87,8 +87,13 @@
                 color: #fff;
             }
         }
+        .share__overlay {
+            top: auto;
+            bottom: 40px;
+            min-width: 218px;
+        }
         .coming-soon {
-            height: 600px;
+            height: 5px;
         }
         h2 {
             padding-bottom: 9px;
@@ -160,9 +165,9 @@
         }
     }
     .intro {
-        width: 95%;
+        width: 100%;
         max-width: 974px;
-        padding-right: 31px;
+        /*padding-right: 31px;*/
         .option-wrapper {
             width: 44%;
             float: left;
@@ -193,8 +198,9 @@
                 &.end {
                     display: none;
                     position: absolute;
-                    bottom: -7px;
-                    right: 70px;
+                    bottom: 10px;
+                    text-align: center;
+                    width: 148px;
                     &.off {
                         bottom: -100px;
                     }
@@ -355,7 +361,7 @@ html[lang="ar"] body.single, html[lang="fa"] body.single, html[lang="ps"] body.s
 @include respondMinMax (400px, false) {
     .main {
         .slides {
-            width:87%;
+            width:100%;
             .option-wrapper {
                 /*width: 45.5%;*/
             }
@@ -370,7 +376,7 @@ html[lang="ar"] body.single, html[lang="fa"] body.single, html[lang="ps"] body.s
 @include respondMinMax (550px, false) {
     .main {
         .slides {
-            width:89%;
+            width:100%;
         }
     }
 }
@@ -378,7 +384,7 @@ html[lang="ar"] body.single, html[lang="fa"] body.single, html[lang="ps"] body.s
     .main {
         .slides,
         .intro {
-            margin-left: 41px;
+            /*margin-left: 41px;*/
             h2 {
                 padding-bottom: 17px;
                 font-size: 24px;
@@ -393,7 +399,7 @@ html[lang="ar"] body.single, html[lang="fa"] body.single, html[lang="ps"] body.s
             }
         }
         .slides {
-            width:64%;
+            width:71%;
             .option-wrapper {
                 width: 45%;
                 margin: 0;
@@ -419,7 +425,7 @@ html[lang="ar"] body.single, html[lang="fa"] body.single, html[lang="ps"] body.s
 @include respondMinMax (720px, false) {
     .main {
         .slides {
-            width:67%;
+            width:73%;
             .option-wrapper {
                 width: 45.5%;
             }
@@ -505,21 +511,67 @@ html[lang="ur"] body .main svg {
     transform: translate(230px,-70px);
 }
 html[lang="es"] body .main .slides .slide #end-try-again {
-    background-position: 12px 6px;
+    background-position: 12px 7px;
 }
 html[lang="tr"] body .main .slides .slide #end-try-again {
-    background-position: 20px 6px;
+    background-position: 20px 7px;
 }
 html[lang="ru"] body .main .slides .slide #end-try-again {
     padding: 8px 0 9px 20px;
-    background-position: -8px 6px;
+    background-position: -8px 7px;
 }
 html[lang="ru"] body .main .slides .share {
     background-position: 28px -21px;
 }
 html[lang="tr"] body .main .slides .slide #end-try-again {
-    background-position: 20px 6px;
+    background-position: 20px 7px;
 }
 html[lang="fa"] body .main .slides .slide #end-try-again {
     background-position: 30px 8px;
+}
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .main {
+        .intro .option-wrapper .option {
+            height: auto;
+            padding-top: 21px;
+            padding-bottom: 21px;
+            span {
+                transform: translateY(0);
+            }
+        }
+        .slides .option-wrapper .option {
+            padding-top: 10px;
+        }
+        .sidebar {
+            ul, svg {
+                display: none;
+            }
+            .fallback {
+                display: block;
+                background: transparent url(../img/navigator-sprite.png) no-repeat 0 0;
+                height: 944px;
+                width: 100px;
+                margin: 0 auto;
+                &.step-2 {
+                    background-position: -109px 0;
+                }
+                &.step-3 {
+                    background-position: -218px 0;
+                }
+                &.step-4 {
+                    background-position: -327px 0;
+                }
+                &.step-5 {
+                    background-position: -436px 0;
+                }
+                &.step-6 {
+                    background-position: -545px 0;
+                }
+                &.step-7 {
+                    background-position: -654px 0;
+                }
+            }
+        }
+    }
 }

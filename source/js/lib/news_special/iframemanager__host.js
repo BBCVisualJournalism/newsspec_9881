@@ -110,6 +110,7 @@
                 this.processCommunicationFromIframe(
                     this.getObjectNotationFromDataString(data)
                 );
+
                 if (this.istatsInTheData()) {
                     this.addToIstatsQueue();
                     this.emptyThisIstatsQueue(this.istatsQueue);
@@ -140,7 +141,7 @@
             return (typeof(this.data.sidebarPosition) !== 'undefined');
         },
         istatsInTheData: function () {
-            return this.data.istats && this.data.istats.actionType;
+            if (this.uidForPostMessage.indexOf('index') > -1) return this.data.istats && this.data.istats.actionType;
         },
         addToIstatsQueue: function () {
             this.istatsQueue.push({
@@ -188,9 +189,11 @@
                 if (parentScrollTop < andIntroOffset) {
                     delta = andIntroOffset;
                     position = 'absolute';
+                    sidebarFrameContainer.style.marginTop = '';
                 } else {
                     delta = 0;
                     position = 'fixed';
+                    sidebarFrameContainer.style.marginTop = 'initial';
                 }
                 sidebarFrameContainer.style.top = delta + 'px';
                 sidebarFrameContainer.style.position = position;

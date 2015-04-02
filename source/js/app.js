@@ -4,12 +4,6 @@ define([
     'data/slides'
 ], function (news, shareTools, slides) {
 
-    // setTimeout(function () {
-    //     news.pubsub.emit('istats', ['panel-clicked', 'newsspec-interaction', 3]);
-    // }, 500);
-    // setTimeout(function () {
-    //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
-    // }, 2000);
     news.sendMessageToremoveLoadingImage();
 
     count = 0;
@@ -33,6 +27,10 @@ define([
             slide,
             first,
             rest;
+
+        setTimeout(function () {
+            news.pubsub.emit('istats', ['syrian-journey-started', 'newsspec-interaction', null]);
+        }, 500);
 
         this.createEventListenersMain();
         this.createFirstSlide();
@@ -182,6 +180,7 @@ define([
             news.pubsub.emit('slide:prepare', [{ 'scroll' : true, 'slide' : slideHtml }]);
             news.$('.coming-soon').replaceWith(slideHtml);
             that.count++;
+            news.pubsub.emit('istats', ['syrian-journey-option-clicked', 'newsspec-interaction', that.count]);
             news.pubsub.emit('slide:created', [{ 'fade' : true, 'count' : that.count, 'slide' : slide }]);
         });
 
@@ -275,6 +274,7 @@ define([
         news.$('#end-try-again').bind('click', function () {
             var offset = news.$('.intro').offset().top;
             that.state = 'end';
+            news.pubsub.emit('istats', ['syrian-journey-try-again', 'newsspec-interaction', null]);
             news.pubsub.emit('window:scrollTo', [offset, 550]);
         });
     };

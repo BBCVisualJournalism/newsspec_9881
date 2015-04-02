@@ -80,6 +80,9 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
                 height:           hostCommunicator.height,
                 hostPageCallback: hostCommunicator.hostPageCallback
             };
+            if (additionalMessage && additionalMessage.actionType) {
+                message.istats = additionalMessage;
+            }
             $.extend(message, additionalMessage || {});
             return message;
         },
@@ -93,12 +96,9 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             if (this.postMessageAvailable) {
                 this.sendDataByPostMessage(istatsData);
             }
-            else {
-                window.istatsQueue.push(istatsData);
-            }
         },
         setupPostMessage: function () {
-            window.setInterval(this.sendDataByPostMessage, 32);
+            window.setInterval(this.sendDataByPostMessage, 500); // CHANGE THIS BACK TO 32
             window.addEventListener('message', this.setIFrameIndexFromPost, false);
             window.addEventListener('message', this.scrollEndFromPost, false);
         },
