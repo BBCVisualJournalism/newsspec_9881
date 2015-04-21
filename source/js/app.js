@@ -14,7 +14,7 @@ define([
 
     init = function (iframe) {
         if (iframe === 'main') {
-            setTimeout(function (){
+            setTimeout(function () {
                 this.mainSequence();
             }, 500);
         } else {
@@ -77,23 +77,23 @@ define([
             staticPath = slides['static-path'],
             imageFilename = slide['image'],
             imgWidth = (number === 0) ? '913' : '730',
-            image = staticPath + '/img/' + imgWidth + '/' + imageFilename,
+            image = staticPath + '/img/' + imgWidth + '/' + imageFilename + '?2',
             title = slide['title'],
             subtitle = slide['subtitle'],
             options = this.createOptions(slide['options']),
             html = '<div class="slide new">',
             endCSSID = '';
 
-        if (title !== '') html +=  '<h2>' + title + '</h2>';
-        if (image !== '') html += '<img src="' + image + '" />';
-        if (content !== '') html += '<p>' + content + '</p>';
+        if (title !== '') { html +=  '<h2>' + title + '</h2>'; }
+        if (image !== '') { html += '<img src="' + image + '" />'; }
+        if (content !== '') { html += '<p>' + content + '</p>'; }
         if (subtitle !== '') {
             if (this.isThisTheEnd(slide)) {
                 endCSSID = 'end-try-again';
             }
             html += '<h3 id="' + endCSSID + '">' + subtitle + '</h3>';
         }
-        if (options !== '') html += options + '<hr>';
+        if (options !== '') { html += options + '<hr>'; }
 
         html += '</div>';
 
@@ -133,7 +133,7 @@ define([
                 options += 'data-slide-number="' + optionsNode[i].number + '"';
             }
             options += '>';
-            if (optionsNode[i].description !== '') options += '<div class="description">' + optionsNode[i].description + '</div>';
+            if (optionsNode[i].description !== '') { options += '<div class="description">' + optionsNode[i].description + '</div>'; }
 
             if (optionsNode[i].secondLabel && this.character === 'female') {
                 options += '<div class="option"><span>' + optionsNode[i].secondLabel + '</span></div>';
@@ -145,7 +145,7 @@ define([
 
         options += '</div>';
 
-        if (optionsNode['a'].label === '') options = '';
+        if (optionsNode['a'].label === '') { options = ''; }
 
         return options;
     };
@@ -189,7 +189,7 @@ define([
 
     optionPostFilter = function (number) {
         if (number.indexOf('#') > -1) {
-            return number.split("#");
+            return number.split('#');
         } else {
             return false;
         }
@@ -224,7 +224,7 @@ define([
             $slide = $slides.find('.slide');
         }
 
-        $slide.each(function() {
+        $slide.each(function () {
             $descriptions = news.$(this).find('.description');
             $options = news.$(this).find('.option');
             $descriptions.removeAttr('style');
@@ -286,16 +286,16 @@ define([
     };
 
     requestFullScreen = function (element) {
-         var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
+        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullscreen;
 
-         if (requestMethod) {
-             requestMethod.call(element);
-         } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-             var wscript = new ActiveXObject("WScript.Shell");
-             if (wscript !== null) {
-                 wscript.SendKeys("{F11}");
-             }
-         }
+        if (requestMethod) {
+            requestMethod.call(element);
+        } else if (typeof window.ActiveXObject !== 'undefined') { // Older IE.
+            var wscript = new ActiveXObject('WScript.Shell');
+            if (wscript !== null) {
+                wscript.SendKeys('{F11}');
+            }
+        }
 
          //var elem = document.body; // Make the body go full screen.
          //requestFullScreen(elem);
@@ -308,13 +308,13 @@ define([
             var scroll = obj.scroll,
                 slide = obj.slide;
 
-            if (scroll) that.scrollToSlide(slide);
+            if (scroll) { that.scrollToSlide(slide); }
         });
 
         news.pubsub.on('slide:created', function (obj) {
             var slide = obj.slide;
 
-            if (that.isThisTheEnd(slide)) that.tryAgainSequence();
+            if (that.isThisTheEnd(slide)) { that.tryAgainSequence(); }
         });
 
         news.pubsub.on('scroll:end', function () {
@@ -401,10 +401,10 @@ define([
             that.sidebarMargin(width);
         });
 
-        news.$("svg path").on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function () {
+        news.$('svg path').on('animationend webkitAnimationEnd oAnimationEnd oanimationEnd MSAnimationEnd', function () {
             that.updateNavigatorNext(that.count);
             news.pubsub.emit('navigator:updated', [{ 'fade' : true, 'count' : that.count}]);
-    	});
+        });
     };
 
     updateNavigator = function (count) {
@@ -459,6 +459,6 @@ define([
         heightPair: heightPair,
         sidebarEnlarge: sidebarEnlarge,
         scrollToSlide: scrollToSlide
-    }
+    };
 
 });

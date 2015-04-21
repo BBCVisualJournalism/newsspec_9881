@@ -498,6 +498,9 @@ html[lang="ur"] body .main .slides {
     margin-right: 31px;
     .option-wrapper {
         margin-right: 0;
+        &:first-child {
+            margin-left: 30px;
+        }
     }
 }
 html[lang="ar"] body,
